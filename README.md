@@ -7,10 +7,11 @@ mltools：一个专注于机器学习工具开发的开源项目。
 ## 安装命令
 
 ```bash
-pip install wliafe-mltools
+pip install wliafe-mltools0
 ```
 
 ## 使用说明
 
 1. mltools需要python3.8及以上版本。
 2. mltools需要自行安装torch库。
+3. 样例可以参考example文件夹。
