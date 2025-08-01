@@ -13,5 +13,5 @@ pip install wliafe-mltools
 ## 使用说明
 
 1. mltools需要python3.8及以上版本。
-2. mltools需要自行安装torch库。
+2. mltools需要自行安装PyTorch和jupyter。
 3. 样例可以参考example文件夹。
