@@ -1,6 +1,6 @@
 [project]
 name = "wliafe-mltools"
-version = "1.0.5"
+version = "1.0.7"
 authors = [
     {name = "wliafe", email = "914099435@qq.com"},
 ]
