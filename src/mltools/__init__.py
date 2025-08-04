@@ -38,11 +38,11 @@ class DataSaveToJson:
             datas: 要保存的数据。
         """
         try:
-            with open(path, 'r') as file:
+            with open(path, "r") as file:
                 data = json.load(file)
         except FileNotFoundError:
             data = {}
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             data[label] = datas
             json.dump(data, f, indent=4)
 
@@ -58,7 +58,7 @@ class DataSaveToJson:
         Returns:
             从 JSON 文件中加载的数据。
         """
-        with open(path, 'r') as file:
+        with open(path, "r") as file:
             return json.load(file)[label]
 
 
@@ -84,10 +84,10 @@ class Tokenizer:
         self.sep = 2  # 分隔词元索引为2
         self.pad = 3  # 填充词元索引为3
         tokens = [item[0] for item in tokens.items() if item[1] > min_freq]  # 删除低频词元
-        self.idx_to_token = ['[UNK]', '[CLS]', '[SEP]', '[PAD]'] + tokens  # 建立词元列表
+        self.idx_to_token = ["[UNK]", "[CLS]", "[SEP]", "[PAD]"] + tokens  # 建立词元列表
         # 建立词元字典
         tokens_dict = {value: index + 4 for index, value in enumerate(tokens)}
-        self.token_to_idx = {'[UNK]': 0, '[CLS]': 1, '[SEP]': 2, '[PAD]': 3}
+        self.token_to_idx = {"[UNK]": 0, "[CLS]": 1, "[SEP]": 2, "[PAD]": 3}
         self.token_to_idx.update(tokens_dict)
 
     def __call__(self, tokens, max_length=None):
@@ -129,11 +129,11 @@ class Tokenizer:
             if indices.dim() == 0:
                 return []
             elif indices.dim() == 1:
-                return ''.join([self.idx_to_token[index] for index in indices.tolist()])
+                return "".join([self.idx_to_token[index] for index in indices.tolist()])
             elif indices.dim() == 2:
-                return [''.join([self.idx_to_token[item] for item in index]) for index in indices.tolist()]
+                return ["".join([self.idx_to_token[item] for item in index]) for index in indices.tolist()]
         else:
-            raise TypeError('indices must be torch.Tensor')
+            raise TypeError("indices must be torch.Tensor")
 
     def encode(self, texts, max_length=None):
         """
@@ -151,16 +151,16 @@ class Tokenizer:
         """
         if isinstance(texts, str):
             if max_length:
-                texts = list(texts)[:max_length] if len(texts) > max_length else list(texts) + ['[PAD]'] * (max_length - len(texts))
+                texts = list(texts)[:max_length] if len(texts) > max_length else list(texts) + ["[PAD]"] * (max_length - len(texts))
             return torch.tensor([self.token_to_idx.get(token, self.unk) for token in texts])
         elif isinstance(texts, (list, tuple)):
             if not max_length:
                 max_length = max([len(text) for text in texts])
             return torch.stack([self.encode(text, max_length) for text in texts])
         else:
-            raise TypeError(f'texts: {texts}\nThe type of texts is {type(texts)}, while texts must be of type str, tuple[str] or list[str]')
+            raise TypeError(f"texts: {texts}\nThe type of texts is {type(texts)}, while texts must be of type str, tuple[str] or list[str]")
 
-    def save(self, path, label='tokenizer'):
+    def save(self, path, label="tokenizer"):
         """
         保存分词器的词表到 JSON 文件。
 
@@ -170,7 +170,7 @@ class Tokenizer:
         """
         DataSaveToJson.save_data(path, label, [self.idx_to_token, self.token_to_idx])
 
-    def load(self, path, label='tokenizer'):
+    def load(self, path, label="tokenizer"):
         """
         从 JSON 文件中加载分词器的词表。
 
@@ -261,14 +261,14 @@ def download_file(url, save_path):
     Returns:
         str: 下载文件的文件名。
     """
-    file_name = re.search(r'(?<=/)[^/]+$', url).group()  # 从url中提取文件名
-    if not Path(f'{save_path}/{file_name}').exists():  # 如果文件不存在则下载
+    file_name = re.search(r"(?<=/)[^/]+$", url).group()  # 从url中提取文件名
+    if not Path(f"{save_path}/{file_name}").exists():  # 如果文件不存在则下载
         Path(save_path).mkdir(parents=True, exist_ok=True)  # 创建保存路径
         with httpx.Client() as client:
-            with client.stream('GET', url) as response:
+            with client.stream("GET", url) as response:
                 response.raise_for_status()  # 检查响应状态码
-                total_size = int(response.headers.get('Content-Length', 0))  # 获取文件大小
-                with open(f'{save_path}/{file_name}', 'wb') as f, tqdm(desc=file_name, total=total_size, unit='B', unit_scale=True, unit_divisor=1024) as pbar:
+                total_size = int(response.headers.get("Content-Length", 0))  # 获取文件大小
+                with open(f"{save_path}/{file_name}", "wb") as f, tqdm(desc=file_name, total=total_size, unit="B", unit_scale=True, unit_divisor=1024) as pbar:
                     for chuck in response.iter_bytes():
                         f.write(chuck)
                         pbar.update(len(chuck))
@@ -295,7 +295,7 @@ class Animator:
         self.fig, self.axes = plt.subplots()  # 生成画布
         self.set_axes = lambda: self.axes.set(xlabel=xlabel, ylabel=ylabel, xlim=xlim, ylim=ylim)  # 初始化设置axes函数
         self.legend = legend  # 图例
-        self.fmts = fmts if fmts else ('-', 'm--', 'g-.', 'r:')  # 格式
+        self.fmts = fmts if fmts else ("-", "m--", "g-.", "r:")  # 格式
         plt.close()
 
     def show(self, Y):
@@ -335,13 +335,13 @@ def images(images, labels, shape):
         labels (list): 图片标签。
         shape (tuple): 子图布局形状。
     """
-    images = images.to(device='cpu')
+    images = images.to(device="cpu")
     fig, axes = plt.subplots(*shape)
     axes = [element for sublist in axes for element in sublist]
     for ax, img, label in zip(axes, images, labels):
         ax.set_title(label)
         ax.set_axis_off()
-        ax.imshow(img, cmap='gray')
+        ax.imshow(img, cmap="gray")
 
 
 class Accumulator:
@@ -436,7 +436,7 @@ class Recorder:
         """
         return self.data[idx]
 
-    def save(self, path, label='recorder'):
+    def save(self, path, label="recorder"):
         """
         保存记录器的数据到 JSON 文件。
 
@@ -446,7 +446,7 @@ class Recorder:
         """
         DataSaveToJson.save_data(path, label, self.data)
 
-    def load(self, path, label='recorder'):
+    def load(self, path, label="recorder"):
         """
         从 JSON 文件中加载记录器的数据。
 
@@ -518,7 +518,7 @@ class Timer:
         """
         return time.strftime("%H:%M:%S", time.gmtime(times))
 
-    def save(self, path, label='timer'):
+    def save(self, path, label="timer"):
         """
         保存计时器的时间数据到 JSON 文件。
 
@@ -528,7 +528,7 @@ class Timer:
         """
         DataSaveToJson.save_data(path, label, self.times)
 
-    def load(self, path, label='timer'):
+    def load(self, path, label="timer"):
         """
         从 JSON 文件中加载计时器的时间数据。
 
@@ -619,11 +619,11 @@ class Epoch:
         num_epoch = num_epochs - self.totol_epoch if num_epochs > self.totol_epoch else 0  # 计算迭代次数
         self._totol_epoch = max(self.totol_epoch, num_epochs)  # 计算总迭代次数
         # 根据迭代次数产生日志
-        self.parent.logger.debug(f'total training epochs {self.totol_epoch}')
+        self.parent.logger.debug(f"total training epochs {self.totol_epoch}")
         if num_epoch:
-            self.parent.logger.debug(f'trained {num_epoch} epochs')
+            self.parent.logger.debug(f"trained {num_epoch} epochs")
         else:
-            self.parent.logger.warning(f'num_epochs is {num_epochs}, less than totol training epoch {self.totol_epoch}, the model won\'t be trained.')
+            self.parent.logger.warning(f"num_epochs is {num_epochs}, less than totol training epoch {self.totol_epoch}, the model won't be trained.")
         return num_epoch
 
     @property
@@ -636,7 +636,7 @@ class Epoch:
         """
         return self._totol_epoch
 
-    def save(self, path, label='epoch'):
+    def save(self, path, label="epoch"):
         """
         保存总训练轮数到 JSON 文件。
 
@@ -646,7 +646,7 @@ class Epoch:
         """
         DataSaveToJson.save_data(path, label, self.totol_epoch)
 
-    def load(self, path, label='epoch'):
+    def load(self, path, label="epoch"):
         """
         从 JSON 文件中加载总训练轮数。
 
@@ -671,19 +671,19 @@ class MachineLearning:
         """
         # 定义时间字符串和文件名
         time_str = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        self.dir_path = f'../results/{time_str}-{file_name}'
+        self.dir_path = f"../results/{time_str}-{file_name}"
         self.file_name = file_name
 
         # 创建目录
         Path(self.dir_path).mkdir(parents=True, exist_ok=True)
 
         # 设置日志
-        self.logger = logging.getLogger('mylog')
+        self.logger = logging.getLogger("mylog")
         self.logger.setLevel(logging.DEBUG)
         # 定义日志格式
         formatter = logging.Formatter("%(asctime)s - %(levelname)s: %(message)s")
         # 创建文件处理器
-        file_handler = logging.FileHandler(f'{self.dir_path}/{self.file_name}.log')
+        file_handler = logging.FileHandler(f"{self.dir_path}/{self.file_name}.log")
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
@@ -720,7 +720,7 @@ class MachineLearning:
         Args:
             dir_name (str, optional): 数据保存的目录名。默认值为 None。
         """
-        dir_path = f'../results/{dir_name}' if dir_name else self.dir_path
+        dir_path = f"../results/{dir_name}" if dir_name else self.dir_path
         self.data_manager.save(dir_path)
 
     def load(self, dir_name=None):
@@ -730,10 +730,10 @@ class MachineLearning:
         Args:
             dir_name (str, optional): 数据加载的目录名。默认值为 None。
         """
-        dir_path = f'../results/{dir_name}' if dir_name else self.dir_path
+        dir_path = f"../results/{dir_name}" if dir_name else self.dir_path
         self.data_manager.load(dir_path)
 
-    def create_epoch(self, label='num_epochs'):
+    def create_epoch(self, label="num_epochs"):
         """
         创建 Epoch 参数。
 
@@ -746,19 +746,21 @@ class MachineLearning:
         epoch = Epoch(self)
 
         def save(dir_path):
-            epoch.save(f'{dir_path}/{self.file_name}.json', label)
-            self.logger.debug(f'save Epoch({label}) to {dir_path}/{self.file_name}.json')
+            epoch.save(f"{dir_path}/{self.file_name}.json", label)
+            self.logger.debug(f"save Epoch({label}) to {dir_path}/{self.file_name}.json")
+
         self.data_manager.add_save_func(save)
 
         def load(dir_path):
-            epoch.load(f'{dir_path}/{self.file_name}.json', label)
-            self.logger.debug(f'load Epoch({label}) from {dir_path}/{self.file_name}.json')
+            epoch.load(f"{dir_path}/{self.file_name}.json", label)
+            self.logger.debug(f"load Epoch({label}) from {dir_path}/{self.file_name}.json")
+
         self.data_manager.add_load_func(load)
 
-        self.logger.debug(f'create Epoch({label})')
+        self.logger.debug(f"create Epoch({label})")
         return epoch
 
-    def create_timer(self, label='timer'):
+    def create_timer(self, label="timer"):
         """
         创建计时器。
 
@@ -771,19 +773,21 @@ class MachineLearning:
         timer = Timer()
 
         def save(dir_path):
-            timer.save(f'{dir_path}/{self.file_name}.json', label)
-            self.logger.debug(f'save Timer({label}) to {dir_path}/{self.file_name}.json')
+            timer.save(f"{dir_path}/{self.file_name}.json", label)
+            self.logger.debug(f"save Timer({label}) to {dir_path}/{self.file_name}.json")
+
         self.data_manager.add_save_func(save)
 
         def load(dir_path):
-            timer.load(f'{dir_path}/{self.file_name}.json', label)
-            self.logger.debug(f'load Timer({label}) from {dir_path}/{self.file_name}.json')
+            timer.load(f"{dir_path}/{self.file_name}.json", label)
+            self.logger.debug(f"load Timer({label}) from {dir_path}/{self.file_name}.json")
+
         self.data_manager.add_load_func(load)
 
-        self.logger.debug(f'create Timer({label})')
+        self.logger.debug(f"create Timer({label})")
         return timer
 
-    def create_recorder(self, recorder_num, label='recorder'):
+    def create_recorder(self, recorder_num, label="recorder"):
         """
         创建记录器。
 
@@ -797,19 +801,21 @@ class MachineLearning:
         recorder = Recorder(recorder_num)
 
         def save(dir_path):
-            recorder.save(f'{dir_path}/{self.file_name}.json', label)
-            self.logger.debug(f'save Recorder({label}) to {dir_path}/{self.file_name}.json')
+            recorder.save(f"{dir_path}/{self.file_name}.json", label)
+            self.logger.debug(f"save Recorder({label}) to {dir_path}/{self.file_name}.json")
+
         self.data_manager.add_save_func(save)
 
         def load(dir_path):
-            recorder.load(f'{dir_path}/{self.file_name}.json', label)
-            self.logger.debug(f'load Recorder({label}) from {dir_path}/{self.file_name}.json')
+            recorder.load(f"{dir_path}/{self.file_name}.json", label)
+            self.logger.debug(f"load Recorder({label}) from {dir_path}/{self.file_name}.json")
+
         self.data_manager.add_load_func(load)
 
-        self.logger.debug(f'create Recorder({label})')
+        self.logger.debug(f"create Recorder({label})")
         return recorder
 
-    def create_animator(self, xlabel=None, ylabel=None, xlim=None, ylim=None, legend=None, fmts=None, label='animator'):
+    def create_animator(self, xlabel=None, ylabel=None, xlim=None, ylim=None, legend=None, fmts=None, label="animator"):
         """
         创建动画器。
 
@@ -828,14 +834,15 @@ class MachineLearning:
         animator = Animator(xlabel, ylabel, xlim, ylim, legend, fmts)
 
         def save(dir_path):
-            animator.save(f'{dir_path}/{self.file_name}.png')
-            self.logger.debug(f'save Animator({label}) to {dir_path}/{self.file_name}.png')
+            animator.save(f"{dir_path}/{self.file_name}.png")
+            self.logger.debug(f"save Animator({label}) to {dir_path}/{self.file_name}.png")
+
         self.data_manager.add_save_func(save)
 
-        self.logger.debug(f'create Animator({label})')
+        self.logger.debug(f"create Animator({label})")
         return animator
 
-    def add_model(self, model, label='model'):
+    def add_model(self, model, label="model"):
         """
         添加模型。
 
@@ -844,20 +851,22 @@ class MachineLearning:
             label (str, optional): 模型的标签，建议和模型变量名相同。默认值为 'model'。
         """
         if not isinstance(model, nn.Module):
-            raise RuntimeError(f'model({label}) must be a nn.Module')
+            raise RuntimeError(f"model({label}) must be a nn.Module")
 
         def save(dir_path):
-            torch.save(model.state_dict(), f'{dir_path}/{self.file_name}.pth')
-            self.logger.debug(f'save model({label}) to {dir_path}/{self.file_name}.pth')
+            torch.save(model.state_dict(), f"{dir_path}/{self.file_name}.pth")
+            self.logger.debug(f"save model({label}) to {dir_path}/{self.file_name}.pth")
+
         self.data_manager.add_save_func(save)
 
         def load(dir_path):
-            model.load_state_dict(torch.load(f'{dir_path}/{self.file_name}.pth'))
-            self.logger.debug(f'load model({label}) from {dir_path}/{self.file_name}.pth')
+            model.load_state_dict(torch.load(f"{dir_path}/{self.file_name}.pth"))
+            self.logger.debug(f"load model({label}) from {dir_path}/{self.file_name}.pth")
+
         self.data_manager.add_load_func(load)
 
-        self.logger.debug(f'add model({label})')
-        self.logger.debug(f'model({label}) is {model}')
+        self.logger.debug(f"add model({label})")
+        self.logger.debug(f"model({label}) is {model}")
 
     def print_training_time_massage(self, timer, num_epochs, current_epoch):
         """
@@ -878,9 +887,9 @@ class MachineLearning:
         # 计算预估的剩余训练时长，并转换为 HH:MM:SS 格式
         estimated_duration = Timer.str((num_epochs - current_epoch) * timer.avg())
         # 打印训练时间相关信息
-        self.logger.info(f'Trained duration: {trained_duration}, Average training duration: {average_duration}, Estimated training duration:{estimated_duration}')
+        self.logger.info(f"Trained duration: {trained_duration}, Average training duration: {average_duration}, Estimated training duration:{estimated_duration}")
 
-    def model_params(self, model, label='model'):
+    def model_params(self, model, label="model"):
         """
         打印模型参数数量。
 
@@ -891,8 +900,8 @@ class MachineLearning:
             None: 此函数仅打印信息，不返回任何值。
         """
         if not isinstance(model, nn.Module):
-            raise RuntimeError(f'model({label}) must be a nn.Module')
+            raise RuntimeError(f"model({label}) must be a nn.Module")
         # 统计模型参数数量
         num_params = sum([param.numel() for param in model.parameters()])
         # 打印模型参数数量
-        self.logger.info(f'Number of model({label}) parameters: {num_params / (1000 * 1000):.2f}M')
+        self.logger.info(f"Number of model({label}) parameters: {num_params / (1000 * 1000):.2f}M")
