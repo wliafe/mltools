@@ -235,7 +235,7 @@ def split_data(datas, ratio):
     return data.random_split(datas, nums)
 
 
-def iter_data(datas, batch_size, shuffle=True):
+def iter_data(datas, batch_size, shuffle=True, num_workers=0, pin_memory=False, drop_last=False):
     """
     将批量数据转换为迭代器。
 
@@ -247,7 +247,7 @@ def iter_data(datas, batch_size, shuffle=True):
     Returns:
         generator: 数据迭代器生成器。
     """
-    return (data.DataLoader(_data, batch_size=batch_size, shuffle=shuffle) for _data in datas)
+    return (data.DataLoader(_data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, pin_memory=pin_memory, drop_last=drop_last) for _data in datas)
 
 
 def download_file(url, save_path):

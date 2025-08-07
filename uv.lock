@@ -4334,7 +4334,7 @@ wheels = [
 
 [[package]]
 name = "wliafe-mltools"
-version = "1.0.5"
+version = "1.0.8"
 source = { editable = "." }
 dependencies = [
     { name = "httpx" },
@@ -4350,7 +4350,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "httpx", specifier = ">=0.28.1" },
-    { name = "jupyter", specifier = "==1.0.0" },
+    { name = "jupyter", specifier = ">=1.0.0" },
     { name = "matplotlib", specifier = ">=3.5.1" },
     { name = "pandas", specifier = ">=1.2.4" },
     { name = "tqdm", specifier = ">=4.67.1" },
