@@ -1,5 +1,4 @@
 import mltools
-import pandas as pd
 from pathlib import Path
 from torchvision import transforms, datasets
 
