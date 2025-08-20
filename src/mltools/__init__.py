@@ -13,6 +13,7 @@ import re
 import json
 import time
 import httpx
+import tomli
 import logging
 from tqdm import tqdm
 from pathlib import Path
@@ -20,6 +21,14 @@ from IPython import display
 from datetime import datetime
 from collections import Counter
 from matplotlib import pyplot as plt
+
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[2]  # 项目根目录
+
+with open(ROOT / "pyproject.toml", "rb") as f:
+    config = tomli.load(f)
+
+__version__ = config["project"]["version"]
 
 
 class DataSaveToJson:
