@@ -31,6 +31,19 @@ with open(ROOT / "pyproject.toml", "rb") as f:
 __version__ = config["project"]["version"]
 
 
+def add_ignore_file(dir):
+    """
+    为指定目录添加 .gitignore 文件，用于忽略所有文件。
+
+    Args:
+        dir (str): 目录路径。
+    """
+    file = Path(dir) / ".gitignore"
+    if not file.exists():
+        with open(file, "w") as f:
+            f.write("*\n")
+
+
 class DataSaveToJson:
     """
     json数据保存器，提供将数据保存到 JSON 文件和从 JSON 文件加载数据的功能。
@@ -685,6 +698,7 @@ class MachineLearning:
 
         # 创建目录
         Path(self.dir_path).mkdir(parents=True, exist_ok=True)
+        add_ignore_file("../results")
 
         # 设置日志
         self.logger = logging.getLogger("mylog")
