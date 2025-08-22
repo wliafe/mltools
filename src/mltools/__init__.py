@@ -6,20 +6,11 @@ mltools.py
 旨在简化机器学习项目的开发流程。
 """
 
-import tomli
-from pathlib import Path
 from mltools.draw import images
 from mltools.tokenize import Tokenizer
 from mltools.data import MyDataset, split_data, iter_data, download_file
 from mltools.learn import MachineLearning
 
-FILE = Path(__file__).resolve()
-ROOT = FILE.parents[2]  # 项目根目录
-
-with open(ROOT / "pyproject.toml", "rb") as f:
-    config = tomli.load(f)
-
-__version__ = config["project"]["version"]
 __all__ = [
     "images",
     "Tokenizer",
