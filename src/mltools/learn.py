@@ -3,8 +3,7 @@ from torch import nn
 import logging
 from pathlib import Path
 from datetime import datetime
-from mltools.draw import Animator
-from mltools.utils import DataSaveToJson, Timer, Recorder, add_ignore_file
+from mltools import utils, draw
 
 
 class Epoch:
@@ -62,7 +61,7 @@ class Epoch:
             path (str): JSON 文件的保存路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'epoch'。
         """
-        DataSaveToJson.save_data(path, label, self.totol_epoch)
+        utils.DataSaveToJson.save_data(path, label, self.totol_epoch)
 
     def load(self, path, label="epoch"):
         """
@@ -72,7 +71,7 @@ class Epoch:
             path (str): JSON 文件的路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'epoch'。
         """
-        self._totol_epoch = DataSaveToJson.load_data(path, label)
+        self._totol_epoch = utils.DataSaveToJson.load_data(path, label)
 
 
 class AutoSaveLoader:
@@ -146,7 +145,7 @@ class MachineLearning:
 
         # 创建目录
         Path(self.dir_path).mkdir(parents=True, exist_ok=True)
-        add_ignore_file("../results")
+        utils.add_ignore_file("../results")
 
         # 设置日志
         self.logger = logging.getLogger("mylog")
@@ -241,7 +240,7 @@ class MachineLearning:
         Returns:
             Timer: 创建的计时器对象。
         """
-        timer = Timer()
+        timer = utils.Timer()
 
         def save(dir_path):
             timer.save(f"{dir_path}/{self.file_name}.json", label)
@@ -269,7 +268,7 @@ class MachineLearning:
         Returns:
             Recorder: 创建的记录器对象。
         """
-        recorder = Recorder(recorder_num)
+        recorder = utils.Recorder(recorder_num)
 
         def save(dir_path):
             recorder.save(f"{dir_path}/{self.file_name}.json", label)
@@ -302,7 +301,7 @@ class MachineLearning:
         Returns:
             Animator: 创建的动画器对象。
         """
-        animator = Animator(xlabel, ylabel, xlim, ylim, legend, fmts)
+        animator = draw.Animator(xlabel, ylabel, xlim, ylim, legend, fmts)
 
         def save(dir_path):
             animator.save(f"{dir_path}/{self.file_name}.png")
@@ -352,11 +351,11 @@ class MachineLearning:
             None: 此函数仅打印信息，不返回任何值。
         """
         # 计算已训练的总时长，并转换为 HH:MM:SS 格式
-        trained_duration = Timer.str(timer.sum())
+        trained_duration = utils.Timer.str(timer.sum())
         # 计算每轮的平均训练时长，并转换为 HH:MM:SS 格式
-        average_duration = Timer.str(timer.avg())
+        average_duration = utils.Timer.str(timer.avg())
         # 计算预估的剩余训练时长，并转换为 HH:MM:SS 格式
-        estimated_duration = Timer.str((num_epochs - current_epoch) * timer.avg())
+        estimated_duration = utils.Timer.str((num_epochs - current_epoch) * timer.avg())
         # 打印训练时间相关信息
         self.logger.info(
             f"Trained duration: {trained_duration}, Average training duration: {average_duration}, Estimated training duration:{estimated_duration}"

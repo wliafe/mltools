@@ -1,6 +1,6 @@
 import torch
 from collections import Counter
-from mltools.utils import DataSaveToJson
+from mltools import utils
 
 
 class Tokenizer:
@@ -115,7 +115,7 @@ class Tokenizer:
             path (str): JSON 文件的保存路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'tokenizer'。
         """
-        DataSaveToJson.save_data(path, label, [self.idx_to_token, self.token_to_idx])
+        utils.DataSaveToJson.save_data(path, label, [self.idx_to_token, self.token_to_idx])
 
     def load(self, path, label="tokenizer"):
         """
@@ -125,4 +125,4 @@ class Tokenizer:
             path (str): JSON 文件的路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'tokenizer'。
         """
-        self.idx_to_token, self.token_to_idx = DataSaveToJson.load_data(path, label)
+        self.idx_to_token, self.token_to_idx = utils.DataSaveToJson.load_data(path, label)
