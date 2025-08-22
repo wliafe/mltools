@@ -9,6 +9,7 @@ mltools.py
 from mltools.draw import images
 from mltools.tokenize import Tokenizer
 from mltools.data import MyDataset, split_data, iter_data, download_file
+from mltools.utils import Accumulator
 from mltools.learn import MachineLearning
 
 __all__ = [
@@ -18,5 +19,6 @@ __all__ = [
     "split_data",
     "iter_data",
     "download_file",
+    "Accumulator",
     "MachineLearning",
 ]

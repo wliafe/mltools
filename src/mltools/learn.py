@@ -139,10 +139,10 @@ class MachineLearning:
             file_name (str): 文件名。
         """
         # 创建目录
-        Path("../results").mkdir(parents=True, exist_ok=True)
-        utils.add_ignore_file("../results")
         Path("../data").mkdir(parents=True, exist_ok=True)
         utils.add_ignore_file("../data")
+        Path("../results").mkdir(parents=True, exist_ok=True)
+        utils.add_ignore_file("../results")
 
         # 定义时间字符串和文件名
         time_str = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
