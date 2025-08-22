@@ -138,14 +138,19 @@ class MachineLearning:
         Args:
             file_name (str): 文件名。
         """
+        # 创建目录
+        Path("../results").mkdir(parents=True, exist_ok=True)
+        utils.add_ignore_file("../results")
+        Path("../data").mkdir(parents=True, exist_ok=True)
+        utils.add_ignore_file("../data")
+
         # 定义时间字符串和文件名
         time_str = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
         self.dir_path = f"../results/{time_str}-{file_name}"
         self.file_name = file_name
 
         # 创建目录
-        Path(self.dir_path).mkdir(parents=True, exist_ok=True)
-        utils.add_ignore_file("../results")
+        Path(self.dir_path).mkdir()
 
         # 设置日志
         self.logger = logging.getLogger("mylog")
