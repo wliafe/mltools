@@ -1,6 +1,6 @@
 [project]
 name = "wliafe-mltools"
-version = "1.0.8"
+version = "1.0.9"
 authors = [
     {name = "wliafe", email = "914099435@qq.com"},
 ]
@@ -11,6 +11,8 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Operating System :: OS Independent",
 ]
 license = "Apache-2.0"
