@@ -9,9 +9,9 @@ build:
   os: ubuntu-24.04
   commands:
     - curl -LsSf https://astral.sh/uv/install.sh | sh
-    - source $HOME/.local/bin/env
+    - . $HOME/.local/bin/env
     - uv sync
-    - source .venv/bin/activate
+    - . .venv/bin/activate
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
