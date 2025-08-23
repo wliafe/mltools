@@ -1,9 +1,14 @@
 import shutil
 from pathlib import Path
 import subprocess
+from utils import requirements
 
 
 def build_docs():
+    """
+    构建文档
+    """
+    requirements.write_requirements()
     html_dir = Path("docs/build/html")
     if html_dir.exists():
         shutil.rmtree(html_dir)
