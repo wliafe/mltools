@@ -16,7 +16,7 @@ if sys.version_info >= (3, 11):
     # Python 3.11 或更高
     import tomllib as tomli
 else:
-    # Python 3.6 ~ 3.10
+    # Python 3.8 ~ 3.10
     import tomli
 
 with open(ROOT / "pyproject.toml", "rb") as f:
