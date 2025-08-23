@@ -21,5 +21,5 @@ def write_requirements():
         for dep in config["project"]["dependencies"]:
             f.write(dep + "\n")
     with open(ROOT / "docs/requirements.txt", "w") as f:
-        for dep in config["project"]["optional-dependencies"]["docs"]:
+        for dep in config["dependency-groups"]["dev"]:
             f.write(dep + "\n")

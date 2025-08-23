@@ -37,15 +37,9 @@ requires = "utils:write_requirements"
 
 [project.urls]
 Homepage = "https://github.com/wliafe/mltools"
+Documentation = "https://wliafe-mltools.readthedocs.io/"
+Repository = "https://github.com/wliafe/mltools.git"
 Issues = "https://github.com/wliafe/mltools/issues"
-
-[project.optional-dependencies]
-docs = [
-    "sphinx>=7.1.2",
-    "myst-parser>=3.0.1",
-    "sphinx-autodoc-typehints>=2.0.1",
-    "tomli>=2.2.1; python_version >= '3.8' and python_version < '3.11'",
-]
 
 [build-system]
 requires = ["uv_build>=0.8.3,<0.9.0"]
@@ -53,3 +47,12 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-name = "mltools"
+
+[dependency-groups]
+dev = [
+    "sphinx>=7.1.2",
+    "myst-parser>=3.0.1",
+    "sphinx-autodoc-typehints>=2.0.1",
+    "tomli>=2.2.1; python_version >= '3.8' and python_version < '3.11'",
+    "sphinx-rtd-theme>=3.0.2",
+]
