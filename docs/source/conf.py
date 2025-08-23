@@ -12,6 +12,8 @@ from pathlib import Path
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[2]  # 项目根目录
 
+sys.path.insert(0, str(ROOT / "src"))
+
 if sys.version_info >= (3, 11):
     # Python 3.11 或更高
     import tomllib as tomli
