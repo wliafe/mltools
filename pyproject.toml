@@ -29,7 +29,13 @@ dependencies = [
     "torch>=2.5.0; python_version >= '3.9'",
     "torchvision>=0.20.0; python_version >= '3.9'",
     "torchaudio>=2.5.0; python_version >= '3.9'",
+    "sphinx>=7.1.2",
+    "myst-parser>=3.0.1",
+    "sphinx-autodoc-typehints>=2.0.1",
 ]
+
+[project.scripts]
+docs = "utils:build_docs"
 
 [project.urls]
 Homepage = "https://github.com/wliafe/mltools"
