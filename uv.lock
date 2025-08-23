@@ -5587,7 +5587,6 @@ dependencies = [
     { name = "matplotlib", version = "3.10.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "pandas", version = "2.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "pandas", version = "2.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-    { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "torch", version = "2.4.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "torch", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "torchaudio", version = "2.4.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
@@ -5609,6 +5608,7 @@ docs = [
     { name = "sphinx-autodoc-typehints", version = "2.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*'" },
     { name = "sphinx-autodoc-typehints", version = "3.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
     { name = "sphinx-autodoc-typehints", version = "3.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
 
 [package.metadata]
@@ -5620,7 +5620,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=1.2.4" },
     { name = "sphinx", marker = "extra == 'docs'", specifier = ">=7.1.2" },
     { name = "sphinx-autodoc-typehints", marker = "extra == 'docs'", specifier = ">=2.0.1" },
-    { name = "tomli", marker = "python_full_version >= '3.8' and python_full_version < '3.11'", specifier = ">=2.2.1" },
+    { name = "tomli", marker = "python_full_version >= '3.8' and python_full_version < '3.11' and extra == 'docs'", specifier = ">=2.2.1" },
     { name = "torch", marker = "python_full_version == '3.8.*'", specifier = ">=2.1.0,<2.5.0" },
     { name = "torch", marker = "python_full_version >= '3.9'", specifier = ">=2.5.0" },
     { name = "torchaudio", marker = "python_full_version == '3.8.*'", specifier = ">=2.1.0,<2.5.0" },
