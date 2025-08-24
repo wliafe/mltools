@@ -13,10 +13,8 @@ pip install wliafe-mltools
 建议使用uv安装。
 
 ```bash
-uv add wliafe-mltools [--extra <cuda版本>]
+uv add wliafe-mltools
 ```
-
-cuda版本：cpu、cu118、cu121、cu124、cu126、cu128
 
 ## 使用说明
 
