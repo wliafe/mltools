@@ -21,7 +21,6 @@ with open(ROOT / "pyproject.toml", "rb") as f:
 def set_readthedocs():
     with open(ROOT / "docs/.readthedocs.yaml", "r", encoding="utf-8") as file:
         data = yaml.safe_load(file)
-    print(data)
     with open(ROOT / ".python-version", "r") as file:
         python_version = file.readline().strip()
     data["build"]["tools"]["python"] = python_version
