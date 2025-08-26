@@ -329,14 +329,14 @@ class MachineLearning:
             raise RuntimeError(f"model({label}) must be a nn.Module")
 
         def save(dir_path):
-            torch.save(model.state_dict(), f"{dir_path}/{self.file_name}.pth")
-            self.logger.debug(f"save model({label}) to {dir_path}/{self.file_name}.pth")
+            torch.save(model.state_dict(), f"{dir_path}/{self.file_name}.pt")
+            self.logger.debug(f"save model({label}) to {dir_path}/{self.file_name}.pt")
 
         self.data_manager.add_save_func(save)
 
         def load(dir_path):
-            model.load_state_dict(torch.load(f"{dir_path}/{self.file_name}.pth"))
-            self.logger.debug(f"load model({label}) from {dir_path}/{self.file_name}.pth")
+            model.load_state_dict(torch.load(f"{dir_path}/{self.file_name}.pt"))
+            self.logger.debug(f"load model({label}) from {dir_path}/{self.file_name}.pt")
 
         self.data_manager.add_load_func(load)
 
