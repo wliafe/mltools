@@ -15,13 +15,13 @@ mltools：一个专注于机器学习工具开发的开源项目。
 推荐使用 uv 安装。
 
 ```bash
-uv add wliafe-mltools
+uv add git+https://github.com/wliafe/mltools.git --tag v1.0.11
 ```
 
 或者使用 pip 安装。
 
 ```bash
-pip install wliafe-mltools
+pip install git+https://github.com/wliafe/mltools.git --tag v1.0.11
 ```
 
 ## 使用说明
