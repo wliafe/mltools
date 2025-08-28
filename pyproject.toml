@@ -32,8 +32,8 @@ dependencies = [
 ]
 
 [project.scripts]
-docs = "utils:build_docs"
-requires = "utils:write_requirements"
+docs = "scripts:build_docs"
+requires = "scripts:write_requirements"
 
 [project.urls]
 Homepage = "https://github.com/wliafe/mltools"
