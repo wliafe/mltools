@@ -8,23 +8,17 @@
 
 import sys
 from pathlib import Path
+import tomllib
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[2]  # 项目根目录
 
 sys.path.insert(0, str(ROOT / "src"))
 
-if sys.version_info >= (3, 11):
-    # Python 3.11 或更高
-    import tomllib as tomli
-else:
-    # Python 3.8 ~ 3.10
-    import tomli
-
 with open(ROOT / "pyproject.toml", "rb") as f:
-    config = tomli.load(f)
+    config = tomllib.load(f)
 
-project = "wliafe-mltools"
+project = "mltools"
 copyright = "2025, wliafe"
 author = "wliafe"
 release = config["project"]["version"]

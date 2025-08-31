@@ -1,10 +1,6 @@
 # mltools
 
 [![Read the Docs](https://img.shields.io/readthedocs/wliafe-mltools)](https://wliafe-mltools.readthedocs.io/zh-cn/latest/)
-![PyPI - License](https://img.shields.io/pypi/l/wliafe-mltools)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/wliafe-mltools)
-![PyPI - Wheel](https://img.shields.io/pypi/wheel/wliafe-mltools)
-![PyPI - Downloads](https://img.shields.io/pypi/dd/wliafe-mltools)
 
 ## 介绍
 
@@ -26,5 +22,5 @@ pip install git+https://github.com/wliafe/mltools.git
 
 ## 使用说明
 
-1. mltools 需要 python3.8 及以上版本。
+1. mltools 需要 python3.11 及以上版本。
 2. 样例可以参考 example 文件夹。
