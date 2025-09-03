@@ -11,24 +11,24 @@ class Epoch:
     机器学习 Epoch，用于管理训练轮数，支持保存和加载总训练轮数。
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent: object):
         """
-        初始化。
+        初始化
 
-        Args:
-            parent: 父对象，用于访问日志记录器。
+        参数:
+            parent (object): 父对象，用于访问日志记录器。
         """
         self._totol_epoch = 0
         self.parent = parent
 
-    def __call__(self, num_epochs):
+    def __call__(self, num_epochs: int) -> int:
         """
         返回迭代轮数。
 
-        Args:
+        参数:
             num_epochs (int): 期望的训练轮数。
 
-        Returns:
+        返回:
             int: 本次需要训练的轮数。
         """
         num_epoch = num_epochs - self.totol_epoch if num_epochs > self.totol_epoch else 0  # 计算迭代次数
@@ -44,30 +44,30 @@ class Epoch:
         return num_epoch
 
     @property
-    def totol_epoch(self):
+    def totol_epoch(self) -> int:
         """
         返回总迭代次数。
 
-        Returns:
+        返回:
             int: 总训练轮数。
         """
         return self._totol_epoch
 
-    def save(self, path, label="epoch"):
+    def save(self, path: str, label: str = "epoch"):
         """
         保存总训练轮数到 JSON 文件。
 
-        Args:
+        参数:
             path (str): JSON 文件的保存路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'epoch'。
         """
         utils.DataSaveToJson.save_data(path, label, self.totol_epoch)
 
-    def load(self, path, label="epoch"):
+    def load(self, path: str, label: str = "epoch"):
         """
         从 JSON 文件中加载总训练轮数。
 
-        Args:
+        参数:
             path (str): JSON 文件的路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'epoch'。
         """
@@ -87,39 +87,39 @@ class AutoSaveLoader:
         self.save_func = []  # 保存函数
         self.load_func = []  # 加载函数
 
-    def add_save_func(self, func):
+    def add_save_func(self, func: callable):
         """
         添加保存函数。
 
-        Args:
+        参数:
             func (callable): 保存函数。
         """
         self.save_func.append(func)
 
-    def save(self, dir_path):
+    def save(self, dir_path: str):
         """
         保存数据。
 
-        Args:
+        参数:
             dir_path (str): 数据保存的目录路径。
         """
         for func in self.save_func:
             func(dir_path)
 
-    def add_load_func(self, func):
+    def add_load_func(self, func: callable):
         """
         添加加载函数。
 
-        Args:
+        参数:
             func (callable): 加载函数。
         """
         self.load_func.append(func)
 
-    def load(self, dir_path):
+    def load(self, dir_path: str):
         """
         加载数据。
 
-        Args:
+        参数:
             dir_path (str): 数据加载的目录路径。
         """
         for func in self.load_func:
@@ -131,11 +131,11 @@ class MachineLearning:
     机器学习工具类，提供批量创建训练辅助对象、管理模型和数据的保存与加载等功能。
     """
 
-    def __init__(self, file_name):
+    def __init__(self, file_name: str):
         """
         初始化函数。
 
-        Args:
+        参数:
             file_name (str): 文件名。
         """
         # 创建目录
@@ -171,16 +171,21 @@ class MachineLearning:
         # 创建自动保存加载器
         self.data_manager = AutoSaveLoader()
 
-    def batch_create(self, create_epoch=True, create_timer=True, create_recorder=True):
+    def batch_create(self, create_epoch: bool = True, create_timer: bool = True, create_recorder: bool = True) -> tuple:
         """
         批量创建 Epoch、Timer 和 Recorder 对象。
 
-        Args:
+        参数:
             create_epoch (bool, optional): 是否创建 Epoch 对象。默认值为 True。
             create_timer (bool, optional): 是否创建计时器对象。默认值为 True。
             create_recorder (bool, optional): 是否创建记录器对象。默认值为 True。
 
-        Returns:
+        参数:
+            create_epoch (bool, optional): 是否创建 Epoch 对象。默认值为 True。
+            create_timer (bool, optional): 是否创建计时器对象。默认值为 True。
+            create_recorder (bool, optional): 是否创建记录器对象。默认值为 True。
+
+        返回:
             tuple: 包含创建的 Epoch、Timer 和 Recorder 对象的元组，不包含 None 值。
         """
         epoch = self.create_epoch() if create_epoch else None
@@ -188,34 +193,34 @@ class MachineLearning:
         recorder = self.create_recorder(3) if create_recorder else None
         return (item for item in (epoch, timer, recorder) if item is not None)
 
-    def save(self, dir_name=None):
+    def save(self, dir_name: str = None):
         """
         保存数据。
 
-        Args:
+        参数:
             dir_name (str, optional): 数据保存的目录名。默认值为 None。
         """
         dir_path = f"../results/{dir_name}" if dir_name else self.dir_path
         self.data_manager.save(dir_path)
 
-    def load(self, dir_name=None):
+    def load(self, dir_name: str = None):
         """
         加载数据。
 
-        Args:
+        参数:
             dir_name (str, optional): 数据加载的目录名。默认值为 None。
         """
         dir_path = f"../results/{dir_name}" if dir_name else self.dir_path
         self.data_manager.load(dir_path)
 
-    def create_epoch(self, label="num_epochs"):
+    def create_epoch(self, label: str = "num_epochs") -> Epoch:
         """
         创建 Epoch 参数。
 
-        Args:
+        参数:
             label (str, optional): Epoch 的标签，建议和被赋值变量名相同。默认值为 'num_epochs'。
 
-        Returns:
+        返回:
             Epoch: 创建的 Epoch 对象。
         """
         epoch = Epoch(self)
@@ -235,14 +240,14 @@ class MachineLearning:
         self.logger.debug(f"create Epoch({label})")
         return epoch
 
-    def create_timer(self, label="timer"):
+    def create_timer(self, label: str = "timer") -> utils.Timer:
         """
         创建计时器。
 
-        Args:
+        参数:
             label (str, optional): 计时器的标签，建议和被赋值变量名相同。默认值为 'timer'。
 
-        Returns:
+        返回:
             Timer: 创建的计时器对象。
         """
         timer = utils.Timer()
@@ -262,15 +267,15 @@ class MachineLearning:
         self.logger.debug(f"create Timer({label})")
         return timer
 
-    def create_recorder(self, recorder_num, label="recorder"):
+    def create_recorder(self, recorder_num: int, label: str = "recorder") -> utils.Recorder:
         """
         创建记录器。
 
-        Args:
+        参数:
             recorder_num (int): 记录器的数量。
             label (str, optional): 记录器的标签，建议和被赋值变量名相同。默认值为 'recorder'。
 
-        Returns:
+        返回:
             Recorder: 创建的记录器对象。
         """
         recorder = utils.Recorder(recorder_num)
@@ -290,11 +295,20 @@ class MachineLearning:
         self.logger.debug(f"create Recorder({label})")
         return recorder
 
-    def create_animator(self, xlabel=None, ylabel=None, xlim=None, ylim=None, legend=None, fmts=None, label="animator"):
+    def create_animator(
+        self,
+        xlabel: str = None,
+        ylabel: str = None,
+        xlim: tuple = None,
+        ylim: tuple = None,
+        legend: list = None,
+        fmts: list = None,
+        label: str = "animator",
+    ) -> draw.Animator:
         """
         创建动画器。
 
-        Args:
+        参数:
             xlabel (str, optional): x 轴标签。默认值为 None。
             ylabel (str, optional): y 轴标签。默认值为 None。
             xlim (tuple, optional): x 轴范围。默认值为 None。
@@ -303,7 +317,7 @@ class MachineLearning:
             fmts (list, optional): 格式。默认值为 None。
             label (str, optional): 动画器的标签，建议和被赋值变量名相同。默认值为 'animator'。
 
-        Returns:
+        返回:
             Animator: 创建的动画器对象。
         """
         animator = draw.Animator(xlabel, ylabel, xlim, ylim, legend, fmts)
@@ -317,13 +331,16 @@ class MachineLearning:
         self.logger.debug(f"create Animator({label})")
         return animator
 
-    def add_model(self, model, label="model"):
+    def add_model(self, model: nn.Module, label: str = "model"):
         """
         添加模型。
 
-        Args:
+        参数:
             model: 模型。
             label (str, optional): 模型的标签，建议和模型变量名相同。默认值为 'model'。
+
+        抛出:
+            RuntimeError: 如果模型不是 nn.Module 类型。
         """
         if not isinstance(model, nn.Module):
             raise RuntimeError(f"model({label}) must be a nn.Module")
@@ -343,17 +360,14 @@ class MachineLearning:
         self.logger.debug(f"add model({label})")
         self.logger.debug(f"model({label}) is {model}")
 
-    def print_training_time_massage(self, timer, num_epochs, current_epoch):
+    def print_training_time_massage(self, timer: utils.Timer, num_epochs: int, current_epoch: int):
         """
         打印模型训练时间相关信息，包括已训练时长、平均训练时长和预估剩余训练时长。
 
-        Args:
+        参数:
             timer (Timer): 计时器对象，用于获取训练时间数据。
             num_epochs (int): 总训练轮数。
             current_epoch (int): 当前训练到的轮数。
-
-        Returns:
-            None: 此函数仅打印信息，不返回任何值。
         """
         # 计算已训练的总时长，并转换为 HH:MM:SS 格式
         trained_duration = utils.Timer.str(timer.sum())
@@ -366,15 +380,15 @@ class MachineLearning:
             f"Trained duration: {trained_duration}, Average training duration: {average_duration}, Estimated training duration:{estimated_duration}"
         )
 
-    def model_params(self, model, label="model"):
+    def model_params(self, model: nn.Module, label: str = "model"):
         """
         打印模型参数数量。
 
-        Args:
+        参数:
             model: 模型对象。
 
-        Returns:
-            None: 此函数仅打印信息，不返回任何值。
+        抛出:
+            RuntimeError: 如果模型不是 nn.Module 类型。
         """
         if not isinstance(model, nn.Module):
             raise RuntimeError(f"model({label}) must be a nn.Module")

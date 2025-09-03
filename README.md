@@ -23,4 +23,4 @@ pip install git+https://github.com/wliafe/mltools.git
 ## 使用说明
 
 1. mltools 需要 python3.11 及以上版本。
-2. 样例可以参考 example 文件夹。
+2. 样例可以参考 tests 文件夹。

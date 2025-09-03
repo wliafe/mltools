@@ -9,11 +9,11 @@ class Tokenizer:
     并提供保存和加载词表的功能。
     """
 
-    def __init__(self, datas, min_freq=0):
+    def __init__(self, datas: list[str], min_freq: int = 0):
         """
         初始化分词器。
 
-        Args:
+        参数:
             datas (list[str]): 数据集，包含文本数据。
             min_freq (int, optional): 最小词频，低于该频率的词元将被过滤。默认值为 0。
         """
@@ -31,39 +31,39 @@ class Tokenizer:
         self.token_to_idx = {"[UNK]": 0, "[CLS]": 1, "[SEP]": 2, "[PAD]": 3}
         self.token_to_idx.update(tokens_dict)
 
-    def __call__(self, tokens, max_length=None):
+    def __call__(self, tokens: str | list[str] | tuple[str], max_length: int = None) -> torch.Tensor:
         """
         调用分词器，将词元转换为索引。
 
-        Args:
-            tokens: 输入的词元，可以是字符串、列表或元组。
+        参数:
+            tokens (str 或 list[str] 或 tuple[str]): 输入的词元。
             max_length (int, optional): 最大长度，用于填充或截断。默认值为 None。
 
-        Returns:
+        返回:
             torch.Tensor: 转换后的词元索引。
         """
         return self.encode(tokens, max_length)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         返回词表大小。
 
-        Returns:
+        返回:
             int: 词表的长度。
         """
         return len(self.idx_to_token)
 
-    def decode(self, indices):
+    def decode(self, indices: torch.Tensor) -> str | list[str]:
         """
         根据索引返回词元。
 
-        Args:
+        参数:
             indices (torch.Tensor): 输入的词元索引。
 
-        Returns:
+        返回:
             str 或 list[str]: 解码后的词元。
 
-        Raises:
+        抛出:
             TypeError: 如果输入的 indices 不是 torch.Tensor 类型。
         """
         if isinstance(indices, torch.Tensor):
@@ -74,20 +74,20 @@ class Tokenizer:
             elif indices.dim() == 2:
                 return ["".join([self.idx_to_token[item] for item in index]) for index in indices.tolist()]
         else:
-            raise TypeError("indices must be torch.Tensor")
+            raise TypeError("indices 必须是 torch.Tensor 类型")
 
-    def encode(self, texts, max_length=None):
+    def encode(self, texts: str | list[str] | tuple[str], max_length: int = None) -> torch.Tensor:
         """
         根据词元返回索引。
 
-        Args:
+        参数:
             texts (str 或 list[str] 或 tuple[str]): 输入的词元。
             max_length (int, optional): 最大长度，用于填充或截断。默认值为 None。
 
-        Returns:
+        返回:
             torch.Tensor: 转换后的词元索引。
 
-        Raises:
+        抛出:
             TypeError: 如果输入的 texts 不是 str、list[str] 或 tuple[str] 类型。
         """
         if isinstance(texts, str):
@@ -107,21 +107,21 @@ class Tokenizer:
                 f"texts: {texts}\nThe type of texts is {type(texts)}, while texts must be of type str, tuple[str] or list[str]"
             )
 
-    def save(self, path, label="tokenizer"):
+    def save(self, path: str, label: str = "tokenizer"):
         """
         保存分词器的词表到 JSON 文件。
 
-        Args:
+        参数:
             path (str): JSON 文件的保存路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'tokenizer'。
         """
         utils.DataSaveToJson.save_data(path, label, [self.idx_to_token, self.token_to_idx])
 
-    def load(self, path, label="tokenizer"):
+    def load(self, path: str, label: str = "tokenizer"):
         """
         从 JSON 文件中加载分词器的词表。
 
-        Args:
+        参数:
             path (str): JSON 文件的路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'tokenizer'。
         """

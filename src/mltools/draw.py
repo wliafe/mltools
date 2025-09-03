@@ -6,35 +6,61 @@ from matplotlib import patches as patches
 from mltools import data
 
 
+def set_axes(axes: list, *, axis: bool = True, **kwargs: dict):
+    """
+    设置axes。
+
+    参数:
+        axes (list[matplotlib.axes.Axes]): 子图对象列表。
+        axis (bool, optional): 是否显示坐标轴。默认值为True。
+        **kwargs (dict): 其他axes设置参数。
+    """
+    ax_list = [ax for ax_row in axes for ax in ax_row]
+    for ax in ax_list:
+        if not axis:
+            ax.set_axis_off()
+        ax.set(**kwargs)
+
+
 class Animator:
     """
     在动画中绘制数据，用于动态展示训练过程中的指标变化。
     """
 
-    def __init__(self, xlabel=None, ylabel=None, xlim=None, ylim=None, legend=None, fmts=None):
+    def __init__(
+        self,
+        xlabel: str = None,
+        ylabel: str = None,
+        xlim: tuple[int, int] = None,
+        ylim: tuple[int, int] = None,
+        legend: list[str] = None,
+        fmts: list[str] = None,
+    ):
         """
         初始化动画器。
 
-        Args:
-            xlabel (str, optional): x 轴标签。默认值为 None。
-            ylabel (str, optional): y 轴标签。默认值为 None。
-            xlim (tuple, optional): x 轴范围。默认值为 None。
-            ylim (tuple, optional): y 轴范围。默认值为 None。
-            legend (list, optional): 图例。默认值为 None。
-            fmts (list, optional): 线条格式。默认值为 None。
+        参数:
+            xlabel (str, optional): x轴标签。默认值为None。
+            ylabel (str, optional): y轴标签。默认值为None。
+            xlim (tuple[int, int], optional): x轴范围。默认值为None。
+            ylim (tuple[int, int], optional): y轴范围。默认值为None。
+            legend (list[str], optional): 图例。默认值为None。
+            fmts (list[str], optional): 线条格式。默认值为None。
         """
         self.fig, self.axes = plt.subplots()  # 生成画布
-        self.set_axes = lambda: self.axes.set(xlabel=xlabel, ylabel=ylabel, xlim=xlim, ylim=ylim)  # 初始化设置axes函数
+        self.set_axes = lambda: set_axes(
+            self.axes, xlabel=xlabel, ylabel=ylabel, xlim=xlim, ylim=ylim
+        )  # 初始化设置axes函数
         self.legend = legend  # 图例
         self.fmts = fmts if fmts else ("-", "m--", "g-.", "r:")  # 格式
         plt.close()
 
-    def show(self, Y):
+    def show(self, Y: list[list[float]]):
         """
         展示动画。
 
-        Args:
-            Y (list): y 轴数据列表。
+        参数:
+            Y (list[list[float]]): y轴数据列表。
         """
         X = [list(range(1, len(sublist) + 1)) for sublist in Y]
         self.axes.cla()  # 清除画布
@@ -47,30 +73,29 @@ class Animator:
         display.display(self.fig)  # 画图
         display.clear_output(wait=True)  # 清除输出
 
-    def save(self, path):
+    def save(self, path: str):
         """
         保存动画为图片文件。
 
-        Args:
+        参数:
             path (str): 图片文件的保存路径。
         """
         self.fig.savefig(path)
 
 
-def images(images, labels, shape):
+def images(images: np.ndarray, labels: list[str], shape: tuple[int, int]):
     """
     展示图片。
 
-    Args:
-        images (numpy.ndarray): 图片数据。
-        labels (list): 图片标签。
-        shape (tuple): 子图布局形状。
+    参数:
+        images (np.ndarray): 图片数据数组。
+        labels (list[str]): 图片标签列表。
+        shape (tuple[int, int]): 子图布局形状。
     """
     fig, axes = plt.subplots(*shape)
     axes = [element for sublist in axes for element in sublist]
     for ax, img, label in zip(axes, images, labels):
-        ax.set_title(label)
-        ax.set_axis_off()
+        set_axes(ax, axis=False, title=label)
         ax.imshow(img, cmap="gray")
     plt.show()
 
@@ -79,26 +104,35 @@ def numpy_to_image(numpy_array: np.ndarray):
     """
     展示图片。
 
-    Args:
-        tensor (numpy.ndarray): 图片数据。
+    参数:
+        numpy_array (np.ndarray): 图片数据数组。
     """
+    fig, ax = plt.subplots(1, 1)
     if numpy_array.ndim == 2:
-        plt.imshow(numpy_array, cmap="gray")  # 使用灰度图
+        ax.imshow(numpy_array, cmap="gray")  # 使用灰度图
     elif numpy_array.ndim == 3:
-        plt.imshow(numpy_array)
-    plt.axis("off")  # 不显示坐标轴
+        ax.imshow(numpy_array)
+    set_axes(ax, axis=False)
     plt.show()  # 显示图片
 
 
 def draw_bbox(image_path: str, bbox: data.Bbox):
+    """
+    绘制边界框。
+
+    参数:
+        image_path (str): 图片文件路径。
+        bbox (data.Bbox): 边界框对象。
+    """
     image = mpimg.imread(image_path)
-    width, height = image.shape[1], image.shape[0]
-    rect_bboxes = data.Bbox.unnormalize(bbox.xmin_ymin_w_h(), width=width, height=height)
-    fig, ax = plt.subplots(1)
-    ax.imshow(image)  # 显示图片
+    rect_bboxes = data.Bbox.unnormalize(bbox.xmin_ymin_w_h(), width=image.shape[1], height=image.shape[0])
+    fig, axes = plt.subplots(1, 2)
+    axes[0, 0].imshow(image)  # 显示原图
+    axes[0, 1].imshow(image)  # 显示矩形框图
     for rect_bbox in rect_bboxes:
         rect = patches.Rectangle(
             (rect_bbox[1], rect_bbox[2]), rect_bbox[3], rect_bbox[4], linewidth=2, edgecolor="r", facecolor="none"
         )  # 创建矩形框
-        ax.add_patch(rect)  # 将矩形框添加到坐标轴
+        axes[0, 1].add_patch(rect)  # 将矩形框添加到坐标轴
+    set_axes(axes, axis=False)
     plt.show()
