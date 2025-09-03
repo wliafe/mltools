@@ -5,8 +5,7 @@ from mltools import utils
 
 class Tokenizer:
     """
-    分词器，将文本数据转换为词元索引，支持词元与索引之间的相互转换，
-    并提供保存和加载词表的功能。
+    分词器，将文本数据转换为词元索引，支持词元与索引之间的相互转换，并提供保存和加载词表的功能。
     """
 
     def __init__(self, datas: list[str], min_freq: int = 0):
