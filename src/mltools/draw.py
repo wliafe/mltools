@@ -1,22 +1,27 @@
 import numpy as np
 from IPython import display
+import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib import image as mpimg
 from matplotlib import patches as patches
 from mltools import data
 
 
-def set_axes(axes: list, *, axis: bool = True, **kwargs: dict):
+def set_axes(axes: matplotlib.axes.Axes | list[matplotlib.axes.Axes], *, axis: bool = True, **kwargs: dict):
     """
     设置axes。
 
     参数:
-        axes (list[matplotlib.axes.Axes]): 子图对象列表。
+        axes (matplotlib.axes.Axes | list[matplotlib.axes.Axes]): 子图对象列表。
         axis (bool, optional): 是否显示坐标轴。默认值为True。
         **kwargs (dict): 其他axes设置参数。
     """
-    ax_list = [ax for ax_row in axes for ax in ax_row]
-    for ax in ax_list:
+    axes_list = axes
+    if isinstance(axes_list, matplotlib.axes.Axes):
+        axes_list = [axes_list]
+    if isinstance(axes_list[0], list):
+        axes_list = [ax for ax_list in axes_list for ax in ax_list]
+    for ax in axes_list:
         if not axis:
             ax.set_axis_off()
         ax.set(**kwargs)
@@ -47,9 +52,9 @@ class Animator:
             legend (list[str], optional): 图例。默认值为None。
             fmts (list[str], optional): 线条格式。默认值为None。
         """
-        self.fig, self.axes = plt.subplots()  # 生成画布
+        self.fig, self.ax = plt.subplots()  # 生成画布
         self.set_axes = lambda: set_axes(
-            self.axes, xlabel=xlabel, ylabel=ylabel, xlim=xlim, ylim=ylim
+            self.ax, xlabel=xlabel, ylabel=ylabel, xlim=xlim, ylim=ylim
         )  # 初始化设置axes函数
         self.legend = legend  # 图例
         self.fmts = fmts if fmts else ("-", "m--", "g-.", "r:")  # 格式
@@ -63,13 +68,13 @@ class Animator:
             Y (list[list[float]]): y轴数据列表。
         """
         X = [list(range(1, len(sublist) + 1)) for sublist in Y]
-        self.axes.cla()  # 清除画布
+        self.ax.cla()  # 清除画布
         for x, y, fmt in zip(X, Y, self.fmts):
-            self.axes.plot(x, y, fmt)
+            self.ax.plot(x, y, fmt)
         self.set_axes()  # 设置axes
         if self.legend:
-            self.axes.legend(self.legend)  # 设置图例
-        self.axes.grid()  # 设置网格线
+            self.ax.legend(self.legend)  # 设置图例
+        self.ax.grid()  # 设置网格线
         display.display(self.fig)  # 画图
         display.clear_output(wait=True)  # 清除输出
 
@@ -91,7 +96,12 @@ def images(images: np.ndarray, labels: list[str], shape: tuple[int, int]):
         images (np.ndarray): 图片数据数组。
         labels (list[str]): 图片标签列表。
         shape (tuple[int, int]): 子图布局形状。
+    
+    抛出:
+        TypeError: 如果images不是numpy数组。
     """
+    if not isinstance(images, np.ndarray):
+        raise TypeError("images must be a numpy array")
     fig, axes = plt.subplots(*shape)
     axes = [element for sublist in axes for element in sublist]
     for ax, img, label in zip(axes, images, labels):
@@ -106,7 +116,12 @@ def numpy_to_image(numpy_array: np.ndarray):
 
     参数:
         numpy_array (np.ndarray): 图片数据数组。
+    
+    抛出:
+        TypeError: 如果numpy_array不是numpy数组。
     """
+    if not isinstance(numpy_array, np.ndarray):
+        raise TypeError("numpy_array must be a numpy array")
     fig, ax = plt.subplots(1, 1)
     if numpy_array.ndim == 2:
         ax.imshow(numpy_array, cmap="gray")  # 使用灰度图
