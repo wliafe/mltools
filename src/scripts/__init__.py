@@ -1,21 +1,14 @@
-import sys
-from pathlib import Path
 import yaml
 import shutil
+import tomllib
 import subprocess
+from pathlib import Path
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[2]  # 项目根目录
 
-if sys.version_info >= (3, 11):
-    # Python 3.11 或更高
-    import tomllib as tomli
-else:
-    # Python 3.8 ~ 3.10
-    import tomli
-
 with open(ROOT / "pyproject.toml", "rb") as f:
-    config = tomli.load(f)
+    config = tomllib.load(f)
 
 
 def set_readthedocs():
