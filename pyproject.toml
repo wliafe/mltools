@@ -23,7 +23,6 @@ dependencies = [
     "tqdm>=4.67.1",
     "torch>=2.5.0; python_version >= '3.9'",
     "torchvision>=0.20.0; python_version >= '3.9'",
-    "torchaudio>=2.5.0; python_version >= '3.9'",
 ]
 
 [project.scripts]
