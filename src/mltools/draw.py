@@ -96,7 +96,7 @@ def images(images: np.ndarray, labels: list[str], shape: tuple[int, int]):
         images (np.ndarray): 图片数据数组。
         labels (list[str]): 图片标签列表。
         shape (tuple[int, int]): 子图布局形状。
-    
+
     抛出:
         TypeError: 如果images不是numpy数组。
     """
@@ -116,7 +116,7 @@ def numpy_to_image(numpy_array: np.ndarray):
 
     参数:
         numpy_array (np.ndarray): 图片数据数组。
-    
+
     抛出:
         TypeError: 如果numpy_array不是numpy数组。
     """
@@ -142,12 +142,12 @@ def draw_bbox(image_path: str, bbox: data.Bbox):
     image = mpimg.imread(image_path)
     rect_bboxes = data.Bbox.unnormalize(bbox.xmin_ymin_w_h(), width=image.shape[1], height=image.shape[0])
     fig, axes = plt.subplots(1, 2)
-    axes[0, 0].imshow(image)  # 显示原图
-    axes[0, 1].imshow(image)  # 显示矩形框图
+    axes[0].imshow(image)  # 显示原图
+    axes[1].imshow(image)  # 显示矩形框图
     for rect_bbox in rect_bboxes:
         rect = patches.Rectangle(
             (rect_bbox[1], rect_bbox[2]), rect_bbox[3], rect_bbox[4], linewidth=2, edgecolor="r", facecolor="none"
         )  # 创建矩形框
-        axes[0, 1].add_patch(rect)  # 将矩形框添加到坐标轴
+        axes[1].add_patch(rect)  # 将矩形框添加到坐标轴
     set_axes(axes, axis=False)
     plt.show()

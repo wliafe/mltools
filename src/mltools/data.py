@@ -183,9 +183,9 @@ class BaseBbox:
         返回边界框的字符串表示
 
         返回:
-            str: 边界框的字符串表示，格式为 "class_id x_min y_min x_max y_max\n"
+            str: 边界框的字符串表示，格式为 "class_id x_min y_min x_max y_max"
         """
-        return f"{self.class_id} {self.x_min} {self.y_min} {self.x_max} {self.y_max}\n"
+        return f"{self.class_id} {self.x_min} {self.y_min} {self.x_max} {self.y_max}"
 
     def __repr__(self) -> str:
         """
@@ -313,7 +313,7 @@ class Bbox:
         返回:
             str: 边界框列表的字符串表示
         """
-        return "".join([str(bbox) for bbox in self.bboxes])
+        return "\n".join(str(bbox) for bbox in self.bboxes)
 
     def __repr__(self) -> str:
         """
@@ -322,7 +322,7 @@ class Bbox:
         返回:
             str: 边界框列表的字符串表示
         """
-        return f"Bbox({self.bboxes})"
+        return "Bbox([\n" + ",\n".join(str(bbox.__repr__()) for bbox in self.bboxes) + ",\n])"
 
     def xmin_ymin_xmax_ymax(self) -> list:
         """
@@ -414,7 +414,28 @@ def bbox(
         return Bbox(Bbox.normalize(bboxes, width=width, height=height), bbox_type=bbox_type)
 
 
-def mask_to_bbox(np_mask: np.ndarray, mask_type: str = "gray") -> Bbox:
+def read_label_file(label_file_path: str, bbox_type: str = "xmin_ymin_xmax_ymax") -> Bbox:
+    """
+    读取标签文件并返回边界框实例
+
+    参数:
+        label_file_path (str): 标签文件路径
+        bbox_type (str, optional): 边界框类型，可选值为 "xmin_ymin_xmax_ymax"、"xmin_ymin_w_h" 或 "center_w_h"，默认为 "xmin_ymin_xmax_ymax"
+
+    返回:
+        Bbox: 边界框实例
+    """
+    lines = []
+    with open(label_file_path, "r") as file:
+        for line in file.readlines():
+            line = line.strip().split()
+            line[0] = int(line[0])
+            line[1:] = [float(x) for x in line[1:]]
+            lines.append(line)
+    return bbox(lines, bbox_type=bbox_type)
+
+
+def mask_to_bbox(mask: np.ndarray, mask_type: str = "gray") -> Bbox:
     """
     将二值掩码转换为边界框
 
@@ -429,51 +450,36 @@ def mask_to_bbox(np_mask: np.ndarray, mask_type: str = "gray") -> Bbox:
         ValueError: 如果 np_mask 不是 2 维数组
         ValueError: 如果 mask_type 不是 'gray'
     """
-    if np_mask.ndim != 2:
+    if mask.ndim != 2:
         raise ValueError("np_mask 必须是 2 维数组")
     if mask_type == "gray":
-        mask = np_mask != 0
-        (y_indices,) = np.nonzero(np.any(mask == 1, axis=1))
-        (x_indices,) = np.nonzero(np.any(mask == 1, axis=0))
+        _mask = mask != 0
+        (y_indices,) = np.nonzero(np.any(_mask == 1, axis=1))
+        (x_indices,) = np.nonzero(np.any(_mask == 1, axis=0))
         y_min, y_max = y_indices.min().item(), y_indices.max().item()
         x_min, x_max = x_indices.min().item(), x_indices.max().item()
     else:
         raise ValueError("mask_type 必须是 'gray'")
-    return bbox([[0, x_min, y_min, x_max, y_max]], normalize=False, width=np_mask.shape[1], height=np_mask.shape[0])
+    return bbox([[0, x_min, y_min, x_max, y_max]], normalize=False, width=_mask.shape[1], height=_mask.shape[0])
 
 
-def read_label_file(label_file_path: str) -> Bbox:
-    """
-    读取标签文件并返回边界框实例
-
-    参数:
-        label_file_path (str): 标签文件路径
-
-    返回:
-        Bbox: 边界框实例
-    """
-    lines = []
-    with open(label_file_path, "r") as file:
-        for line in file.readlines():
-            line = line.strip().split()
-            line[0] = int(line[0])
-            line[1:] = [float(x) for x in line[1:]]
-            lines.append(line)
-    return bbox(lines)
-
-
-def rename_file(path: str, new_name: str):
+def rename_file(file_path: str, new_name: str):
     """
     重命名文件
 
     参数:
-        path (str): 文件路径
+        file_path (str): 文件路径
         new_name (str): 新文件名
+
+    抛出:
+        FileExistsError: 如果新文件名已存在
     """
-    file_path = Path(path)
-    file_new_name = file_path.name.replace(file_path.stem, new_name)
-    file_new_path = file_path.parent / file_new_name
-    file_path.rename(file_new_path)
+    _file_path = Path(file_path)
+    file_new_name = _file_path.name.replace(_file_path.stem, new_name)
+    file_new_path = _file_path.parent / file_new_name
+    if file_new_path.exists():
+        raise FileExistsError(f"文件 {file_new_path} 已存在")
+    _file_path.rename(file_new_path)
 
 
 def batch_rename(image_dir_path: str, label_dir_path: str, *, prefix: str, offset: int = 0):
@@ -486,8 +492,16 @@ def batch_rename(image_dir_path: str, label_dir_path: str, *, prefix: str, offse
         prefix (str): 文件名前缀
         offset (int, optional): 文件名偏移量，默认为 0
     """
-    image_dir_path, label_dir_path = Path(image_dir_path), Path(label_dir_path)
-    for index, image_path in enumerate(image_dir_path.iterdir()):
-        label_path = label_dir_path / (image_path.stem + ".txt")
-        rename_file(str(image_path), f"{prefix}_{index + offset:010d}")
-        rename_file(str(label_path), f"{prefix}_{index + offset:010d}")
+    print(f"以 {prefix} 为前缀重命名文件")
+    _image_dir_path, _label_dir_path = Path(image_dir_path), Path(label_dir_path)
+    for index, image_path in enumerate(_image_dir_path.iterdir()):
+        label_path = _label_dir_path / (image_path.stem + ".txt")
+        try:
+            rename_file(str(image_path), f"{prefix}_{index + offset:010d}")
+            rename_file(str(label_path), f"{prefix}_{index + offset:010d}")
+        except FileExistsError as e:
+            print(e)
+            batch_rename(image_dir_path, label_dir_path, prefix="temp")
+            batch_rename(image_dir_path, label_dir_path, prefix=prefix)
+            break
+    print("重命名完成")
