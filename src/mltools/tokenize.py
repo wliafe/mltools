@@ -12,7 +12,7 @@ class Tokenizer:
         """
         初始化分词器。
 
-        参数:
+        Args:
             datas (list[str]): 数据集，包含文本数据。
             min_freq (int, optional): 最小词频，低于该频率的词元将被过滤。默认值为 0。
         """
@@ -34,11 +34,11 @@ class Tokenizer:
         """
         调用分词器，将词元转换为索引。
 
-        参数:
+        Args:
             tokens (str 或 list[str] 或 tuple[str]): 输入的词元。
             max_length (int, optional): 最大长度，用于填充或截断。默认值为 None。
 
-        返回:
+        Returns:
             torch.Tensor: 转换后的词元索引。
         """
         return self.encode(tokens, max_length)
@@ -47,7 +47,7 @@ class Tokenizer:
         """
         返回词表大小。
 
-        返回:
+        Returns:
             int: 词表的长度。
         """
         return len(self.idx_to_token)
@@ -56,13 +56,13 @@ class Tokenizer:
         """
         根据索引返回词元。
 
-        参数:
+        Args:
             indices (torch.Tensor): 输入的词元索引。
 
-        返回:
+        Returns:
             str 或 list[str]: 解码后的词元。
 
-        抛出:
+        Raises:
             TypeError: 如果输入的 indices 不是 torch.Tensor 类型。
         """
         if isinstance(indices, torch.Tensor):
@@ -79,14 +79,14 @@ class Tokenizer:
         """
         根据词元返回索引。
 
-        参数:
+        Args:
             texts (str 或 list[str] 或 tuple[str]): 输入的词元。
             max_length (int, optional): 最大长度，用于填充或截断。默认值为 None。
 
-        返回:
+        Returns:
             torch.Tensor: 转换后的词元索引。
 
-        抛出:
+        Raises:
             TypeError: 如果输入的 texts 不是 str、list[str] 或 tuple[str] 类型。
         """
         if isinstance(texts, str):
@@ -110,7 +110,7 @@ class Tokenizer:
         """
         保存分词器的词表到 JSON 文件。
 
-        参数:
+        Args:
             path (str): JSON 文件的保存路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'tokenizer'。
         """
@@ -120,7 +120,7 @@ class Tokenizer:
         """
         从 JSON 文件中加载分词器的词表。
 
-        参数:
+        Args:
             path (str): JSON 文件的路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'tokenizer'。
         """

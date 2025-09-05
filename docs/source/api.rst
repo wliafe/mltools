@@ -1,27 +1,27 @@
 API 文档
 ========
 
-.. automodule:: mltools
+.. automodule:: mltools.data
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: mltools.learn.Epoch
+.. automodule:: mltools.learn
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: mltools.utils.Timer
+.. automodule:: mltools.draw
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: mltools.utils.Recorder
+.. automodule:: mltools.utils
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: mltools.draw.Animator
+.. automodule:: mltools.tokenize
    :members:
    :undoc-members:
    :show-inheritance:

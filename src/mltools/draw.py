@@ -11,7 +11,7 @@ def set_axes(axes: matplotlib.axes.Axes | list[matplotlib.axes.Axes], *, axis: b
     """
     设置axes。
 
-    参数:
+    Args:
         axes (matplotlib.axes.Axes | list[matplotlib.axes.Axes]): 子图对象列表。
         axis (bool, optional): 是否显示坐标轴。默认值为True。
         **kwargs (dict): 其他axes设置参数。
@@ -44,7 +44,7 @@ class Animator:
         """
         初始化动画器。
 
-        参数:
+        Args:
             xlabel (str, optional): x轴标签。默认值为None。
             ylabel (str, optional): y轴标签。默认值为None。
             xlim (tuple[int, int], optional): x轴范围。默认值为None。
@@ -64,7 +64,7 @@ class Animator:
         """
         展示动画。
 
-        参数:
+        Args:
             Y (list[list[float]]): y轴数据列表。
         """
         X = [list(range(1, len(sublist) + 1)) for sublist in Y]
@@ -82,7 +82,7 @@ class Animator:
         """
         保存动画为图片文件。
 
-        参数:
+        Args:
             path (str): 图片文件的保存路径。
         """
         self.fig.savefig(path)
@@ -92,12 +92,12 @@ def images(images: np.ndarray, labels: list[str], shape: tuple[int, int]):
     """
     展示图片。
 
-    参数:
+    Args:
         images (np.ndarray): 图片数据数组。
         labels (list[str]): 图片标签列表。
         shape (tuple[int, int]): 子图布局形状。
 
-    抛出:
+    Raises:
         TypeError: 如果images不是numpy数组。
     """
     if not isinstance(images, np.ndarray):
@@ -114,10 +114,10 @@ def numpy_to_image(numpy_array: np.ndarray):
     """
     展示图片。
 
-    参数:
+    Args:
         numpy_array (np.ndarray): 图片数据数组。
 
-    抛出:
+    Raises:
         TypeError: 如果numpy_array不是numpy数组。
     """
     if not isinstance(numpy_array, np.ndarray):
@@ -135,7 +135,7 @@ def draw_bbox(image_path: str, bbox: data.Bbox):
     """
     绘制边界框。
 
-    参数:
+    Args:
         image_path (str): 图片文件路径。
         bbox (data.Bbox): 边界框对象。
     """

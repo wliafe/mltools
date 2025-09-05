@@ -7,7 +7,7 @@ def add_ignore_file(dir: str):
     """
     为指定目录添加 .gitignore 文件，用于忽略所有文件。
 
-    参数:
+    Args:
         dir (str): 目录路径。
     """
     file = Path(dir) / ".gitignore"
@@ -26,7 +26,7 @@ class DataSaveToJson:
         """
         保存数据到指定路径的 JSON 文件中。
 
-        参数:
+        Args:
             path (str): JSON 文件的保存路径。
             label (str): 数据在 JSON 文件中的键名。
             datas (dict): 要保存的数据。
@@ -45,11 +45,11 @@ class DataSaveToJson:
         """
         从指定路径的 JSON 文件中加载数据。
 
-        参数:
+        Args:
             path (str): JSON 文件的路径。
             label (str): 数据在 JSON 文件中的键名。
 
-        返回:
+        Returns:
             从 JSON 文件中加载的数据。
         """
         with open(path, "r") as file:
@@ -65,7 +65,7 @@ class Accumulator:
         """
         初始化累加器。
 
-        参数:
+        Args:
             n (int): 变量个数。
         """
         self.data = [0.0] * n
@@ -74,7 +74,7 @@ class Accumulator:
         """
         添加数据到累加器。
 
-        参数:
+        Args:
             *args (int | float): 要添加的数据。
         """
         self.data = [a + float(b) for a, b in zip(self.data, args)]
@@ -89,10 +89,10 @@ class Accumulator:
         """
         返回第 n 个累加值。
 
-        参数:
+        Args:
             idx (int): 索引。
 
-        返回:
+        Returns:
             float: 第 idx 个累加值。
         """
         return self.data[idx]
@@ -107,7 +107,7 @@ class Recorder:
         """
         初始化记录器。
 
-        参数:
+        Args:
             n (int): 记录器的数量。
         """
         self.data = [[] for _ in range(n)]
@@ -116,7 +116,7 @@ class Recorder:
         """
         返回最新记录。
 
-        返回:
+        Returns:
             list[float]: 最新记录的列表。
         """
         return [item[-1] for item in self.data]
@@ -125,7 +125,7 @@ class Recorder:
         """
         返回最长记录长度。
 
-        返回:
+        Returns:
             int: 最长记录的长度。
         """
         return max([len(item) for item in self.data])
@@ -140,10 +140,10 @@ class Recorder:
         """
         返回第 n 个记录器的数据。
 
-        参数:
+        Args:
             idx (int): 索引。
 
-        返回:
+        Returns:
             list[float]: 第 idx 个记录器的数据列表。
         """
         return self.data[idx]
@@ -152,7 +152,7 @@ class Recorder:
         """
         保存记录器的数据到 JSON 文件。
 
-        参数:
+        Args:
             path (str): JSON 文件的保存路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'recorder'。
         """
@@ -162,7 +162,7 @@ class Recorder:
         """
         从 JSON 文件中加载记录器的数据。
 
-        参数:
+        Args:
             path (str): JSON 文件的路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'recorder'。
         """
@@ -190,7 +190,7 @@ class Timer:
         """
         停止计时器并将时间记录在列表中。
 
-        返回:
+        Returns:
             float: 本次记录的时间。
         """
         self.times.append(time.time() - self.tik)
@@ -200,7 +200,7 @@ class Timer:
         """
         返回平均时间。
 
-        返回:
+        Returns:
             float: 平均时间，单位为秒。如果没有记录时间，则返回 0。
         """
         if self.times:
@@ -212,7 +212,7 @@ class Timer:
         """
         计算记录的所有时间的总和。
 
-        返回:
+        Returns:
             float: 记录的所有时间的总和，单位为秒。如果没有记录时间，则返回 0。
         """
         return sum(self.times)
@@ -222,10 +222,10 @@ class Timer:
         """
         将时间转换为格式化的字符串。
 
-        参数:
+        Args:
             times (float): 时间，单位为秒。
 
-        返回:
+        Returns:
             str: 格式化后的时间字符串，格式为 "HH:MM:SS"。
         """
         return time.strftime("%H:%M:%S", time.gmtime(times))
@@ -234,7 +234,7 @@ class Timer:
         """
         保存计时器的时间数据到 JSON 文件。
 
-        参数:
+        Args:
             path (str): JSON 文件的保存路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'timer'。
         """
@@ -244,7 +244,7 @@ class Timer:
         """
         从 JSON 文件中加载计时器的时间数据。
 
-        参数:
+        Args:
             path (str): JSON 文件的路径。
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'timer'。
         """
