@@ -307,7 +307,7 @@ class Bbox:
         Returns:
             str: 边界框列表的字符串表示
         """
-        return "Bbox([\n" + ",\n".join(str(bbox.__repr__()) for bbox in self.bboxes) + ",\n])"
+        return "Bbox([\n\t" + ",\n\t".join(str(bbox.__repr__()) for bbox in self.bboxes) + ",\n])"
 
     def xmin_ymin_xmax_ymax(self) -> list:
         """
