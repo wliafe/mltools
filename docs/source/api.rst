@@ -20,8 +20,3 @@ API 文档
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. automodule:: mltools.tokenize
-   :members:
-   :undoc-members:
-   :show-inheritance:
