@@ -395,7 +395,7 @@ class Bbox:
     边界框容器类
     """
 
-    def __init__(self, bboxes: list, *, bbox_type: str = "xmin_ymin_xmax_ymax"):
+    def __init__(self, bboxes: list = None, bbox_type: str = "xmin_ymin_xmax_ymax"):
         """
         初始化 Bbox 实例
 
@@ -561,7 +561,7 @@ def bbox(
         return Bbox(Bbox.normalize(bboxes, width=width, height=height), bbox_type=bbox_type)
 
 
-def read_label_file(label_file_path: str, bbox_type: str = "xmin_ymin_xmax_ymax") -> Bbox:
+def read_txt_label_file(label_file_path: str, bbox_type: str = "xmin_ymin_xmax_ymax") -> Bbox:
     """
     读取标签文件并返回边界框实例
 
@@ -580,6 +580,18 @@ def read_label_file(label_file_path: str, bbox_type: str = "xmin_ymin_xmax_ymax"
             line[1:] = [float(x) for x in line[1:]]
             lines.append(line)
     return bbox(lines, bbox_type=bbox_type)
+
+def save_txt_label_file(label_file_path: str, bbox: Bbox, bbox_type: str = "xmin_ymin_xmax_ymax"):
+    """
+    将边界框实例保存为标签文件
+
+    Args:
+        label_file_path (str): 标签文件路径
+        bboxes (Bbox): 边界框实例
+        bbox_type (str, optional): 边界框类型，可选值为 "xmin_ymin_xmax_ymax"、"xmin_ymin_w_h" 或 "center_w_h"，默认为 "xmin_ymin_xmax_ymax"
+    """
+    with open(label_file_path, "w") as file:
+        file.write(str(bbox))
 
 
 def mask_to_bbox(mask: np.ndarray, mask_type: str = "gray") -> Bbox:
@@ -650,6 +662,37 @@ def extract_class_names_from_xml_dir(xml_dir: str):
             class_names.update(extract_class_names_from_xml_file(xml_file))
     return sorted(list(class_names))
 
+def read_xml_label_file(xml_file_path: str, class_names: list, bbox_type: str = "xmin_ymin_xmax_ymax") -> Bbox:
+    """
+    读取 XML 文件并返回边界框实例
+
+    Args:
+        xml_file_path (str): XML 文件路径
+        class_names (list): 类别名称列表
+        bbox_type (str, optional): 边界框类型，可选值为 "xmin_ymin_xmax_ymax"、"xmin_ymin_w_h" 或 "center_w_h"，默认为 "xmin_ymin_xmax_ymax"
+
+    Returns:
+        Bbox: 边界框实例
+    """
+    if not Path(xml_file_path).exists():
+        raise FileNotFoundError(f"文件 {xml_file_path} 不存在")
+    if not Path(xml_file_path).suffix == ".xml":
+        raise ValueError(f"文件 {xml_file_path} 不是 XML 文件")
+    tree = ET.parse(xml_file_path)
+    root = tree.getroot()
+
+    # 获取图片尺寸
+    size = root.find("size")
+    width, height = [float(size.find(tag).text) for tag in ["width", "height"]]
+
+    # 提取边界框
+    objects = root.findall("object")
+    obj_bbox = bbox()
+    for obj in objects:
+        class_index = class_names.index(obj.find("name").text)
+        xmin, ymin, xmax, ymax = [float(obj.find("bndbox").find(tag).text) for tag in ["xmin", "ymin", "xmax", "ymax"]]
+        obj_bbox.append(BaseBbox(BaseBbox.normalize([class_index, xmin, ymin, xmax, ymax], width=width, height=height), bbox_type=bbox_type))
+    return obj_bbox
 
 def xml_to_txt(xml_file_path: str, txt_file_path: str, class_names: list):
     """
