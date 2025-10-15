@@ -1,12 +1,18 @@
 import torch
 from torch.utils import data
 import re
+import yaml
 import httpx
 import numpy as np
 from tqdm import tqdm
 from pathlib import Path
 from collections import Counter
+import xml.etree.ElementTree as ET
 from mltools import utils
+
+"""
+数据集处理
+"""
 
 
 class Tokenizer:
@@ -223,6 +229,11 @@ def iter_data(
     )
 
 
+"""
+数据集下载
+"""
+
+
 def download_file(url: str, *, save_path: str) -> str:
     """
     下载文件
@@ -249,6 +260,11 @@ def download_file(url: str, *, save_path: str) -> str:
                         f.write(chuck)
                         pbar.update(len(chuck))
     return file_name
+
+
+"""
+目标检测数据处理
+"""
 
 
 class BaseBbox:
@@ -391,9 +407,11 @@ class Bbox:
             ValueError: 如果 bboxes 参数不是列表
             ValueError: 如果 bboxes 列表元素不是列表
         """
+        if bboxes is None:
+            bboxes = []
         if not isinstance(bboxes, list):
             raise ValueError("bboxes 参数必须是列表")
-        if not all(isinstance(bbox, list) for bbox in bboxes):
+        if not all(isinstance(bbox, list) for bbox in bboxes) and len(bboxes) != 0:
             raise ValueError("bboxes 列表元素必须是列表")
         self.bboxes = [BaseBbox(bbox, bbox_type=bbox_type) for bbox in bboxes]
 
@@ -435,6 +453,24 @@ class Bbox:
             str: 边界框列表的字符串表示
         """
         return "Bbox([\n\t" + ",\n\t".join(str(bbox.__repr__()) for bbox in self.bboxes) + ",\n])"
+
+    def append(self, bbox: BaseBbox):
+        """
+        在边界框列表末尾添加一个边界框
+
+        Args:
+            bbox (BaseBbox): 要添加的边界框实例
+        """
+        self.bboxes.append(bbox)
+
+    def delete_class(self, class_id: int):
+        """
+        删除指定类别的边界框
+
+        Args:
+            class_id (int): 要删除的类别 ID
+        """
+        self.bboxes = [bbox for bbox in self.bboxes if bbox.class_id != class_id]
 
     def xmin_ymin_xmax_ymax(self) -> list:
         """
@@ -495,8 +531,7 @@ class Bbox:
 
 
 def bbox(
-    bboxes: list,
-    *,
+    bboxes: list = None,
     bbox_type: str = "xmin_ymin_xmax_ymax",
     normalize: bool = True,
     width: int = None,
@@ -573,6 +608,126 @@ def mask_to_bbox(mask: np.ndarray, mask_type: str = "gray") -> Bbox:
     else:
         raise ValueError("mask_type 必须是 'gray'")
     return bbox([[0, x_min, y_min, x_max, y_max]], normalize=False, width=_mask.shape[1], height=_mask.shape[0])
+
+
+def extract_class_names_from_xml_file(xml_file_path: str):
+    """
+    从XML文件中自动提取所有类别名称
+
+    Args:
+        xml_file_path (str): XML 文件路径
+
+    Returns:
+        list: 排序后的唯一类别名称列表
+    """
+    if not Path(xml_file_path).exists():
+        raise FileNotFoundError(f"文件 {xml_file_path} 不存在")
+    if not Path(xml_file_path).suffix == ".xml":
+        raise ValueError(f"文件 {xml_file_path} 不是 XML 文件")
+    tree = ET.parse(xml_file_path)
+    root = tree.getroot()
+    objects = root.findall("object")
+    class_names = set()
+    for obj in objects:
+        class_names.add(obj.find("name").text)
+    return class_names
+
+
+def extract_class_names_from_xml_dir(xml_dir: str):
+    """
+    从XML目录中自动提取所有类别名称
+
+    Args:
+        xml_dir (str): XML 文件目录
+
+    Returns:
+        list: 排序后的唯一类别名称列表
+    """
+    xml_dir_path = Path(xml_dir)
+    class_names = set()
+    for xml_file in xml_dir_path.iterdir():
+        if xml_file.suffix == ".xml":
+            class_names.update(extract_class_names_from_xml_file(xml_file))
+    return sorted(list(class_names))
+
+
+def xml_to_txt(xml_file_path: str, txt_file_path: str, class_names: list):
+    """
+    将 XML 文件转换为 YOLO 格式的 TXT 文件
+
+    Args:
+        xml_file_path (str): XML 文件路径
+        txt_file_path (str): 输出 TXT 文件路径
+        class_names (list): 类别名称列表
+    """
+    if not Path(xml_file_path).exists():
+        raise FileNotFoundError(f"文件 {xml_file_path} 不存在")
+    if not Path(xml_file_path).suffix == ".xml":
+        raise ValueError(f"文件 {xml_file_path} 不是 XML 文件")
+    tree = ET.parse(xml_file_path)
+    root = tree.getroot()
+
+    # 获取图片尺寸
+    size = root.find("size")
+    width, height = [float(size.find(tag).text) for tag in ["width", "height"]]
+
+    # 提取边界框
+    objects = root.findall("object")
+    obj_bbox = bbox()
+    for obj in objects:
+        class_index = class_names.index(obj.find("name").text)
+        xmin, ymin, xmax, ymax = [float(obj.find("bndbox").find(tag).text) for tag in ["xmin", "ymin", "xmax", "ymax"]]
+        obj_bbox.append(BaseBbox(BaseBbox.normalize([class_index, xmin, ymin, xmax, ymax], width=width, height=height)))
+    with open(txt_file_path, "w") as file:
+        file.write(str(obj_bbox))
+
+
+def generate_data_yaml(class_names: list, output_dir: str):
+    """
+    生成YOLOv8训练所需的data.yaml配置文件
+
+    Args:
+        class_names (list): 类别名称列表
+        output_dir (str): 输出目录
+    """
+    data = {
+        "path": "./dataset",
+        "train": "images/train",
+        "val": "images/val",
+        "test": "images/test",
+        "nc": len(class_names),
+        "names": class_names,
+    }
+    with open(Path(output_dir) / "data.yaml", "w") as file:
+        yaml.dump(data, file)
+    print(f"已生成YOLOv8配置文件: {Path(output_dir) / 'data.yaml'}")
+
+
+def batch_xml_to_txt(xml_dir: str, txt_dir: str):
+    """
+    批量将 XML 文件转换为 YOLO 格式的 TXT 文件
+
+    Args:
+        xml_dir (str): XML 文件目录
+        txt_dir (str): 输出 TXT 文件目录
+    """
+    if not Path(xml_dir).exists():
+        raise FileNotFoundError(f"目录 {xml_dir} 不存在")
+    if not Path(xml_dir).is_dir():
+        raise ValueError(f"路径 {xml_dir} 不是目录")
+    Path(txt_dir).mkdir(parents=True, exist_ok=True)
+    class_names = extract_class_names_from_xml_dir(xml_dir)
+    for xml_file in Path(xml_dir).iterdir():
+        if xml_file.suffix == ".xml":
+            txt_file = Path(txt_dir) / (xml_file.stem + ".txt")
+            xml_to_txt(str(xml_file), str(txt_file), class_names)
+    print(f"转换完成，已转换 {len(list(Path(txt_dir).iterdir()))} 个文件")
+    generate_data_yaml(class_names, txt_dir)
+
+
+"""
+文件重命名
+"""
 
 
 def rename_file(file_path: str, new_name: str):
