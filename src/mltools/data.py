@@ -664,7 +664,7 @@ def bbox(
         return Bbox(Bbox.normalize(bboxes, width=width, height=height), bbox_type=bbox_type)
 
 
-def read_txt_label_file(label_file_path: str, bbox_type: str = "xmin_ymin_xmax_ymax") -> Bbox:
+def read_txt_label_file(label_file_path: str, bbox_type: str = "center_w_h") -> Bbox:
     """
     读取标签文件并返回边界框实例
 
@@ -825,7 +825,7 @@ def batch_xml_to_txt(
     xml_dir: str,
     txt_dir: str,
     read_bbox_type: str = "xmin_ymin_xmax_ymax",
-    save_bbox_type: str = "xmin_ymin_xmax_ymax",
+    save_bbox_type: str = "center_w_h",
 ):
     """
     批量将 XML 文件转换为 YOLO 格式的 TXT 文件

@@ -4,7 +4,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib import image as mpimg
 from matplotlib import patches as patches
-from mltools import data
+from mltools import data as ma
 
 
 def set_axes(axes: matplotlib.axes.Axes | list[matplotlib.axes.Axes], *, axis: bool = True, **kwargs: dict):
@@ -131,7 +131,7 @@ def numpy_to_image(numpy_array: np.ndarray):
     plt.show()  # 显示图片
 
 
-def draw_bbox(image_path: str, bbox: data.Bbox):
+def draw_bbox(image_path: str, bbox: ma.Bbox):
     """
     绘制边界框。
 
@@ -140,7 +140,7 @@ def draw_bbox(image_path: str, bbox: data.Bbox):
         bbox (data.Bbox): 边界框对象。
     """
     image = mpimg.imread(image_path)
-    rect_bboxes = data.Bbox.unnormalize(bbox.xmin_ymin_w_h(), width=image.shape[1], height=image.shape[0])
+    rect_bboxes = ma.Bbox.unnormalize(bbox.xmin_ymin_w_h().to_list(), width=image.shape[1], height=image.shape[0])
     fig, axes = plt.subplots(1, 2)
     axes[0].imshow(image)  # 显示原图
     axes[1].imshow(image)  # 显示矩形框图
