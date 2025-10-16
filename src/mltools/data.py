@@ -281,30 +281,20 @@ class BaseBbox:
             bbox_type (str, optional): 边界框格式，可选值为 "xmin_ymin_xmax_ymax"、"xmin_ymin_w_h"、"center_w_h". 默认值为 "xmin_ymin_xmax_ymax".
 
         Raises:
-            ValueError: 如果 bbox 参数长度不是 5 个元素
             ValueError: 如果类别不是整数
             ValueError: 如果 bbox 参数不归一化
             ValueError: 如果 bbox_type 不是 'xmin_ymin_xmax_ymax'、'xmin_ymin_w_h' 或 'center_w_h'
         """
-        if len(bbox) != 5:
-            raise ValueError("bbox 参数必须是 5 个元素")
         if isinstance(bbox[0], int):
             self.class_id = bbox[0]
         else:
             raise ValueError("类别必须是整数")
-        if not all(isinstance(item, float) for item in bbox[1:]):
+        if all(isinstance(item, float) for item in bbox[1:5]):
+            self.bbox = bbox[1:5]
+        else:
             raise ValueError("bbox 参数必须归一化")
-        if bbox_type == "xmin_ymin_xmax_ymax":
-            self.x_min, self.y_min, self.x_max, self.y_max = bbox[1:]
-        elif bbox_type == "xmin_ymin_w_h":
-            self.x_min, self.y_min, self.x_max, self.y_max = (bbox[1], bbox[2], bbox[1] + bbox[3], bbox[2] + bbox[4])
-        elif bbox_type == "center_w_h":
-            self.x_min, self.y_min, self.x_max, self.y_max = (
-                bbox[1] - bbox[3] / 2,
-                bbox[2] - bbox[4] / 2,
-                bbox[1] + bbox[3] / 2,
-                bbox[2] + bbox[4] / 2,
-            )
+        if bbox_type in ["xmin_ymin_xmax_ymax", "xmin_ymin_w_h", "center_w_h"]:
+            self.bbox_type = bbox_type
         else:
             raise ValueError("bbox_type 必须是 'xmin_ymin_xmax_ymax'、'xmin_ymin_w_h' 或 'center_w_h'")
 
@@ -313,51 +303,115 @@ class BaseBbox:
         返回边界框的字符串表示
 
         Returns:
-            str: 边界框的字符串表示，格式为 "class_id x_min y_min x_max y_max"
+            str: 边界框的字符串表示，格式为 "{class_id} {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}"
         """
-        return f"{self.class_id} {self.x_min} {self.y_min} {self.x_max} {self.y_max}"
+        return f"{self.class_id} {self.bbox[0]} {self.bbox[1]} {self.bbox[2]} {self.bbox[3]}"
 
     def __repr__(self) -> str:
         """
         返回边界框的字符串表示
 
         Returns:
-            str: 边界框的字符串表示，格式为 "BaseBbox(class_id={self.class_id}, bbox=[{self.x_min}, {self.y_min}, {self.x_max}, {self.y_max}])"
+            str: 边界框的字符串表示，格式为 "BaseBbox(class_id={self.class_id}, bbox=[{self.bbox[0]}, {self.bbox[1]}, {self.bbox[2]}, {self.bbox[3]}])"
         """
-        return f"BaseBbox(class_id={self.class_id}, bbox=[{self.x_min}, {self.y_min}, {self.x_max}, {self.y_max}])"
+        return f"BaseBbox(class_id={self.class_id}, bbox=[{self.bbox[0]}, {self.bbox[1]}, {self.bbox[2]}, {self.bbox[3]}], bbox_type={self.bbox_type})"
 
-    def xmin_ymin_xmax_ymax(self) -> list:
+    def to_list(self) -> list:
         """
         返回边界框的坐标表示
 
         Returns:
             list: 边界框的坐标表示，格式为 [class_id, x_min, y_min, x_max, y_max]
         """
-        return [self.class_id, self.x_min, self.y_min, self.x_max, self.y_max]
+        return [self.class_id, self.bbox[0], self.bbox[1], self.bbox[2], self.bbox[3]]
 
-    def xmin_ymin_w_h(self) -> list:
+    def xmin_ymin_xmax_ymax(self):
         """
         返回边界框的坐标表示
 
         Returns:
-            list: 边界框的坐标表示，格式为 [class_id, x_min, y_min, x_max - x_min, y_max - y_min]
+            BaseBbox: 格式为 xmin_ymin_xmax_ymax 的边界框的坐标表示。
         """
-        return [self.class_id, self.x_min, self.y_min, self.x_max - self.x_min, self.y_max - self.y_min]
+        if self.bbox_type == "xmin_ymin_xmax_ymax":
+            return self
+        elif self.bbox_type == "xmin_ymin_w_h":
+            return BaseBbox(
+                [self.class_id, self.bbox[0], self.bbox[1], self.bbox[0] + self.bbox[2], self.bbox[1] + self.bbox[3]],
+                bbox_type="xmin_ymin_xmax_ymax",
+            )
+        elif self.bbox_type == "center_w_h":
+            return BaseBbox(
+                [
+                    self.class_id,
+                    self.bbox[0] - self.bbox[2] / 2,
+                    self.bbox[1] - self.bbox[3] / 2,
+                    self.bbox[0] + self.bbox[2] / 2,
+                    self.bbox[1] + self.bbox[3] / 2,
+                ],
+                bbox_type="xmin_ymin_xmax_ymax",
+            )
+        else:
+            raise ValueError("bbox_type 必须是 'xmin_ymin_xmax_ymax'、'xmin_ymin_w_h' 或 'center_w_h'")
 
-    def center_w_h(self) -> list:
+    def xmin_ymin_w_h(self):
         """
         返回边界框的坐标表示
 
         Returns:
-            list: 边界框的坐标表示，格式为 [class_id, x_min + (x_max - x_min) / 2, y_min + (y_max - y_min) / 2, x_max - x_min, y_max - y_min]
+            BaseBbox: 格式为 xmin_ymin_w_h 的边界框的坐标表示。
         """
-        return [
-            self.class_id,
-            self.x_min + (self.x_max - self.x_min) / 2,
-            self.y_min + (self.y_max - self.y_min) / 2,
-            self.x_max - self.x_min,
-            self.y_max - self.y_min,
-        ]
+        if self.bbox_type == "xmin_ymin_w_h":
+            return self
+        else:
+            bbox = self.xmin_ymin_xmax_ymax().to_list()
+            return BaseBbox(
+                [bbox[0], bbox[1], bbox[2], bbox[3] - bbox[1], bbox[4] - bbox[2]],
+                bbox_type="xmin_ymin_w_h",
+            )
+
+    def center_w_h(self):
+        """
+        返回边界框的坐标表示
+
+        Returns:
+            BaseBbox: 格式为 center_w_h 的边界框的坐标表示。
+        """
+        if self.bbox_type == "center_w_h":
+            return self
+        else:
+            bbox = self.xmin_ymin_xmax_ymax().to_list()
+            return BaseBbox(
+                [
+                    bbox[0],
+                    bbox[1] + (bbox[3] - bbox[1]) / 2,
+                    bbox[2] + (bbox[4] - bbox[2]) / 2,
+                    bbox[3] - bbox[1],
+                    bbox[4] - bbox[2],
+                ],
+                bbox_type="center_w_h",
+            )
+
+    def convert(self, bbox_type: str):
+        """
+        转换边界框格式
+
+        Args:
+            bbox_type (str): 目标边界框格式，可选值为 "xmin_ymin_xmax_ymax"、"xmin_ymin_w_h" 或 "center_w_h"
+
+        Returns:
+            BaseBbox: 转换后的边界框实例
+
+        Raises:
+            ValueError: 如果 bbox_type 不是 "xmin_ymin_xmax_ymax"、"xmin_ymin_w_h" 或 "center_w_h" 中的一个
+        """
+        if bbox_type == "xmin_ymin_xmax_ymax":
+            return self.xmin_ymin_xmax_ymax()
+        elif bbox_type == "xmin_ymin_w_h":
+            return self.xmin_ymin_w_h()
+        elif bbox_type == "center_w_h":
+            return self.center_w_h()
+        else:
+            raise ValueError("bbox_type 必须是 'xmin_ymin_xmax_ymax'、'xmin_ymin_w_h' 或 'center_w_h'")
 
     @staticmethod
     def normalize(bbox: list, *, width: int, height: int) -> list:
@@ -405,15 +459,25 @@ class Bbox:
 
         Raises:
             ValueError: 如果 bboxes 参数不是列表
-            ValueError: 如果 bboxes 列表元素不是列表
+            ValueError: 如果 bboxes 列表元素不是列表或 BaseBbox 实例
+            ValueError: 如果 bboxes 列表元素类型与 bbox_type 参数不匹配
         """
         if bboxes is None:
             bboxes = []
         if not isinstance(bboxes, list):
             raise ValueError("bboxes 参数必须是列表")
-        if not all(isinstance(bbox, list) for bbox in bboxes) and len(bboxes) != 0:
-            raise ValueError("bboxes 列表元素必须是列表")
-        self.bboxes = [BaseBbox(bbox, bbox_type=bbox_type) for bbox in bboxes]
+        if not all(isinstance(bbox, list | BaseBbox) for bbox in bboxes) and len(bboxes) != 0:
+            raise ValueError("bboxes 列表元素必须是列表或 BaseBbox 实例")
+        self.bbox_type = bbox_type
+        self.bboxes = []
+        for bbox in bboxes:
+            if isinstance(bbox, BaseBbox):
+                if bbox.bbox_type == bbox_type:
+                    self.bboxes.append(bbox)
+                else:
+                    raise ValueError(f"bboxes 列表元素 {bbox} 类型与 bbox_type 参数 {bbox_type} 不匹配")
+            else:
+                self.bboxes.append(BaseBbox(bbox, bbox_type=bbox_type))
 
     def __getitem__(self, index: int) -> BaseBbox:
         """
@@ -454,14 +518,31 @@ class Bbox:
         """
         return "Bbox([\n\t" + ",\n\t".join(str(bbox.__repr__()) for bbox in self.bboxes) + ",\n])"
 
-    def append(self, bbox: BaseBbox):
+    def to_list(self) -> list:
+        """
+        返回边界框列表的坐标表示
+
+        Returns:
+            list: 边界框列表的坐标表示
+        """
+        return [bbox.to_list() for bbox in self.bboxes]
+
+    def append(self, bbox: BaseBbox | list):
         """
         在边界框列表末尾添加一个边界框
 
         Args:
-            bbox (BaseBbox): 要添加的边界框实例
+            bbox (BaseBbox | list): 要添加的边界框实例
         """
-        self.bboxes.append(bbox)
+        if isinstance(bbox, list):
+            self.bboxes.append(BaseBbox(bbox, bbox_type=self.bbox_type))
+        elif isinstance(bbox, BaseBbox):
+            if bbox.bbox_type == self.bbox_type:
+                self.bboxes.append(bbox)
+            else:
+                raise ValueError(f"bbox 参数 {bbox} 类型与 bbox_type 参数 {self.bbox_type} 不匹配")
+        else:
+            raise ValueError(f"bbox 参数 {bbox} 类型必须为 list 或 BaseBbox")
 
     def delete_class(self, class_id: int):
         """
@@ -472,32 +553,53 @@ class Bbox:
         """
         self.bboxes = [bbox for bbox in self.bboxes if bbox.class_id != class_id]
 
-    def xmin_ymin_xmax_ymax(self) -> list:
+    def xmin_ymin_xmax_ymax(self):
         """
         返回边界框的坐标表示
 
         Returns:
-            list: 边界框的坐标表示，格式为 [class_id, x_min, y_min, x_max, y_max]
+            Bbox: 格式为 xmin_ymin_xmax_ymax 边界框列表的坐标表示。
         """
-        return [bbox.xmin_ymin_xmax_ymax() for bbox in self.bboxes]
+        if self.bbox_type == "xmin_ymin_xmax_ymax":
+            return self
+        else:
+            return Bbox([bbox.xmin_ymin_xmax_ymax() for bbox in self.bboxes], bbox_type="xmin_ymin_xmax_ymax")
 
-    def xmin_ymin_w_h(self) -> list:
+    def xmin_ymin_w_h(self):
         """
         返回边界框的坐标表示
 
         Returns:
-            list: 边界框的坐标表示，格式为 [class_id, x_min, y_min, x_max - x_min, y_max - y_min]
+            Bbox: 格式为 xmin_ymin_w_h 边界框列表的坐标表示。
         """
-        return [bbox.xmin_ymin_w_h() for bbox in self.bboxes]
+        if self.bbox_type == "xmin_ymin_w_h":
+            return self
+        else:
+            return Bbox([bbox.xmin_ymin_w_h() for bbox in self.bboxes], bbox_type="xmin_ymin_w_h")
 
-    def center_w_h(self) -> list:
+    def center_w_h(self):
         """
         返回边界框的坐标表示
 
         Returns:
-            list: 边界框的坐标表示，格式为 [class_id, x_min + (x_max - x_min) / 2, y_min + (y_max - y_min) / 2, x_max - x_min, y_max - y_min]
+            Bbox: 格式为 center_w_h 边界框列表的坐标表示。
         """
-        return [bbox.center_w_h() for bbox in self.bboxes]
+        if self.bbox_type == "center_w_h":
+            return self
+        else:
+            return Bbox([bbox.center_w_h() for bbox in self.bboxes], bbox_type="center_w_h")
+
+    def convert(self, bbox_type: str):
+        """
+        转换边界框格式
+
+        Args:
+            bbox_type (str): 目标边界框格式，可选值为 "xmin_ymin_xmax_ymax"、"xmin_ymin_w_h" 或 "center_w_h"
+
+        Returns:
+            BaseBbox: 转换后的边界框实例
+        """
+        return Bbox([bbox.convert(bbox_type) for bbox in self.bboxes], bbox_type=bbox_type)
 
     @staticmethod
     def normalize(bboxes: list, *, width: int, height: int) -> list:
@@ -532,6 +634,7 @@ class Bbox:
 
 def bbox(
     bboxes: list = None,
+    *,
     bbox_type: str = "xmin_ymin_xmax_ymax",
     normalize: bool = True,
     width: int = None,
@@ -572,14 +675,15 @@ def read_txt_label_file(label_file_path: str, bbox_type: str = "xmin_ymin_xmax_y
     Returns:
         Bbox: 边界框实例
     """
-    lines = []
+    obj_bbox = bbox(bbox_type=bbox_type)
     with open(label_file_path, "r") as file:
         for line in file.readlines():
             line = line.strip().split()
             line[0] = int(line[0])
             line[1:] = [float(x) for x in line[1:]]
-            lines.append(line)
-    return bbox(lines, bbox_type=bbox_type)
+            obj_bbox.append(line)
+    return obj_bbox
+
 
 def save_txt_label_file(label_file_path: str, bbox: Bbox, bbox_type: str = "xmin_ymin_xmax_ymax"):
     """
@@ -591,7 +695,7 @@ def save_txt_label_file(label_file_path: str, bbox: Bbox, bbox_type: str = "xmin
         bbox_type (str, optional): 边界框类型，可选值为 "xmin_ymin_xmax_ymax"、"xmin_ymin_w_h" 或 "center_w_h"，默认为 "xmin_ymin_xmax_ymax"
     """
     with open(label_file_path, "w") as file:
-        file.write(str(bbox))
+        file.write(str(bbox.convert(bbox_type)))
 
 
 def mask_to_bbox(mask: np.ndarray, mask_type: str = "gray") -> Bbox:
@@ -662,6 +766,7 @@ def extract_class_names_from_xml_dir(xml_dir: str):
             class_names.update(extract_class_names_from_xml_file(xml_file))
     return sorted(list(class_names))
 
+
 def read_xml_label_file(xml_file_path: str, class_names: list, bbox_type: str = "xmin_ymin_xmax_ymax") -> Bbox:
     """
     读取 XML 文件并返回边界框实例
@@ -687,42 +792,12 @@ def read_xml_label_file(xml_file_path: str, class_names: list, bbox_type: str = 
 
     # 提取边界框
     objects = root.findall("object")
-    obj_bbox = bbox()
+    obj_bbox = bbox(bbox_type=bbox_type)
     for obj in objects:
         class_index = class_names.index(obj.find("name").text)
-        xmin, ymin, xmax, ymax = [float(obj.find("bndbox").find(tag).text) for tag in ["xmin", "ymin", "xmax", "ymax"]]
-        obj_bbox.append(BaseBbox(BaseBbox.normalize([class_index, xmin, ymin, xmax, ymax], width=width, height=height), bbox_type=bbox_type))
+        xml_bbox = [float(obj.find("bndbox").find(tag).text) for tag in ["xmin", "ymin", "xmax", "ymax"]]
+        obj_bbox.append(BaseBbox.normalize([int(class_index), *xml_bbox], width=width, height=height))
     return obj_bbox
-
-def xml_to_txt(xml_file_path: str, txt_file_path: str, class_names: list):
-    """
-    将 XML 文件转换为 YOLO 格式的 TXT 文件
-
-    Args:
-        xml_file_path (str): XML 文件路径
-        txt_file_path (str): 输出 TXT 文件路径
-        class_names (list): 类别名称列表
-    """
-    if not Path(xml_file_path).exists():
-        raise FileNotFoundError(f"文件 {xml_file_path} 不存在")
-    if not Path(xml_file_path).suffix == ".xml":
-        raise ValueError(f"文件 {xml_file_path} 不是 XML 文件")
-    tree = ET.parse(xml_file_path)
-    root = tree.getroot()
-
-    # 获取图片尺寸
-    size = root.find("size")
-    width, height = [float(size.find(tag).text) for tag in ["width", "height"]]
-
-    # 提取边界框
-    objects = root.findall("object")
-    obj_bbox = bbox()
-    for obj in objects:
-        class_index = class_names.index(obj.find("name").text)
-        xmin, ymin, xmax, ymax = [float(obj.find("bndbox").find(tag).text) for tag in ["xmin", "ymin", "xmax", "ymax"]]
-        obj_bbox.append(BaseBbox(BaseBbox.normalize([class_index, xmin, ymin, xmax, ymax], width=width, height=height)))
-    with open(txt_file_path, "w") as file:
-        file.write(str(obj_bbox))
 
 
 def generate_data_yaml(class_names: list, output_dir: str):
@@ -746,7 +821,12 @@ def generate_data_yaml(class_names: list, output_dir: str):
     print(f"已生成YOLOv8配置文件: {Path(output_dir) / 'data.yaml'}")
 
 
-def batch_xml_to_txt(xml_dir: str, txt_dir: str):
+def batch_xml_to_txt(
+    xml_dir: str,
+    txt_dir: str,
+    read_bbox_type: str = "xmin_ymin_xmax_ymax",
+    save_bbox_type: str = "xmin_ymin_xmax_ymax",
+):
     """
     批量将 XML 文件转换为 YOLO 格式的 TXT 文件
 
@@ -763,7 +843,8 @@ def batch_xml_to_txt(xml_dir: str, txt_dir: str):
     for xml_file in Path(xml_dir).iterdir():
         if xml_file.suffix == ".xml":
             txt_file = Path(txt_dir) / (xml_file.stem + ".txt")
-            xml_to_txt(str(xml_file), str(txt_file), class_names)
+            bbox = read_xml_label_file(str(xml_file), class_names, read_bbox_type)
+            save_txt_label_file(str(txt_file), bbox, save_bbox_type)
     print(f"转换完成，已转换 {len(list(Path(txt_dir).iterdir()))} 个文件")
     generate_data_yaml(class_names, txt_dir)
 
