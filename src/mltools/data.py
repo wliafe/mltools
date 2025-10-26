@@ -789,11 +789,7 @@ def read_xml_label_file(xml_file_path: str, class_names: list, bbox_type: str = 
         if class_name in class_names:
             class_index = class_names.index(class_name)
             xml_bbox = [float(obj.find("bndbox").find(tag).text) for tag in ["xmin", "ymin", "xmax", "ymax"]]
-            obj_bbox.append(
-                BaseBbox(
-                    BaseBbox.normalize([int(class_index), *xml_bbox], width=width, height=height), class_name=class_name
-                )
-            )
+            obj_bbox.append(BaseBbox.normalize([int(class_index), *xml_bbox], width=width, height=height))
     return obj_bbox
 
 
