@@ -684,7 +684,12 @@ def save_txt_label_file(label_file_path: str, bbox: Bbox, bbox_type: str = "xmin
         label_file_path (str): 标签文件路径
         bboxes (Bbox): 边界框实例
         bbox_type (str, optional): 边界框类型，可选值为 "xmin_ymin_xmax_ymax"、"xmin_ymin_w_h" 或 "center_w_h"，默认为 "xmin_ymin_xmax_ymax"
+    
+    Raises:
+        ValueError: 如果 label_file_path 不是 TXT 文件
     """
+    if Path(label_file_path).suffix != ".txt":
+        raise ValueError(f"文件 {label_file_path} 不是 TXT 文件")
     with open(label_file_path, "w") as file:
         file.write(str(bbox.convert(bbox_type)))
 
@@ -817,6 +822,8 @@ def generate_data_yaml(class_names: list, output_dir: str):
 def batch_xml_to_txt(
     xml_dir: str,
     txt_dir: str,
+    *,
+    class_names: list = None,
     read_bbox_type: str = "xmin_ymin_xmax_ymax",
     save_bbox_type: str = "center_w_h",
 ):
@@ -826,13 +833,17 @@ def batch_xml_to_txt(
     Args:
         xml_dir (str): XML 文件目录
         txt_dir (str): 输出 TXT 文件目录
+        class_names (list, optional): 类别名称列表，默认为 None
+        read_bbox_type (str, optional): 读取边界框类型，可选值为 "xmin_ymin_xmax_ymax"、"xmin_ymin_w_h" 或 "center_w_h"，默认为 "xmin_ymin_xmax_ymax"
+        save_bbox_type (str, optional): 保存边界框类型，可选值为 "xmin_ymin_xmax_ymax"、"xmin_ymin_w_h" 或 "center_w_h"，默认为 "center_w_h"
     """
     if not Path(xml_dir).exists():
         raise FileNotFoundError(f"目录 {xml_dir} 不存在")
     if not Path(xml_dir).is_dir():
         raise ValueError(f"路径 {xml_dir} 不是目录")
     Path(txt_dir).mkdir(parents=True, exist_ok=True)
-    class_names = extract_class_names_from_xml_dir(xml_dir)
+    if class_names is None:
+        class_names = extract_class_names_from_xml_dir(xml_dir)
     for xml_file in Path(xml_dir).iterdir():
         if xml_file.suffix == ".xml":
             txt_file = Path(txt_dir) / (xml_file.stem + ".txt")
