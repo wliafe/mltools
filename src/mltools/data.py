@@ -544,15 +544,6 @@ class Bbox:
         else:
             raise ValueError(f"bbox 参数 {bbox} 类型必须为 list 或 BaseBbox")
 
-    def delete_class(self, class_id: int):
-        """
-        删除指定类别的边界框
-
-        Args:
-            class_id (int): 要删除的类别 ID
-        """
-        self.bboxes = [bbox for bbox in self.bboxes if bbox.class_id != class_id]
-
     def xmin_ymin_xmax_ymax(self):
         """
         返回边界框的坐标表示
@@ -794,11 +785,15 @@ def read_xml_label_file(xml_file_path: str, class_names: list, bbox_type: str = 
     objects = root.findall("object")
     obj_bbox = bbox(bbox_type=bbox_type)
     for obj in objects:
-        class_name=obj.find("name").text
+        class_name = obj.find("name").text
         if class_name in class_names:
             class_index = class_names.index(class_name)
             xml_bbox = [float(obj.find("bndbox").find(tag).text) for tag in ["xmin", "ymin", "xmax", "ymax"]]
-            obj_bbox.append(BaseBbox(BaseBbox.normalize([int(class_index), *xml_bbox], width=width, height=height), class_name=class_name))
+            obj_bbox.append(
+                BaseBbox(
+                    BaseBbox.normalize([int(class_index), *xml_bbox], width=width, height=height), class_name=class_name
+                )
+            )
     return obj_bbox
 
 
