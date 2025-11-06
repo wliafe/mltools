@@ -1,19 +1,8 @@
 import json
 import time
+import subprocess
 from pathlib import Path
-
-
-def add_ignore_file(dir: str):
-    """
-    为指定目录添加 .gitignore 文件，用于忽略所有文件。
-
-    Args:
-        dir (str): 目录路径。
-    """
-    file = Path(dir) / ".gitignore"
-    if not file.exists():
-        with open(file, "w") as f:
-            f.write("*\n")
+from nvitop import Device
 
 
 class DataSaveToJson:
@@ -249,3 +238,66 @@ class Timer:
             label (str, optional): 数据在 JSON 文件中的键名。默认值为 'timer'。
         """
         self.times = DataSaveToJson.load_data(path, label)
+
+
+def add_ignore_file(dir: str):
+    """
+    为指定目录添加 .gitignore 文件，用于忽略所有文件。
+
+    Args:
+        dir (str): 目录路径。
+    """
+    file = Path(dir) / ".gitignore"
+    if not file.exists():
+        with open(file, "w") as f:
+            f.write("*\n")
+
+
+def bash_command(command: str | list[str]):
+    """
+    执行 bash 命令并实时打印输出。
+
+    Args:
+        command (str | list[str]): 要执行的 bash 命令。
+    """
+    if isinstance(command, str):
+        command = command.split()
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,  # 合并错误输出到标准输出
+        text=True,  # 返回字符串而非字节
+        bufsize=1,  # 行缓冲模式
+    )
+    while True:
+        line = process.stdout.readline()
+        if not line:
+            break  # 进程结束
+        print(line.strip())  # 实时打印
+
+
+def get_gpu(func, *args: list[str], **kwargs: dict[str, str]):
+    """
+    获取空闲的 GPU 设备并执行指定函数。
+
+    Args:
+        func (callable): 要在 GPU 上执行的函数。
+        args (list[str]): 函数的位置参数列表。
+        kwargs (dict[str, str]): 函数的关键字参数字典。
+    """
+    # 获取所有可用的GPU设备
+    devices = Device.all()
+    searching_for_gpu = True
+
+    while searching_for_gpu:
+        for device in devices:
+            processes = device.processes()
+            print("-------")
+            print(device.index, len(processes.items()))
+
+            if len(processes.items()) == 1:
+                searching_for_gpu = False
+                print("-------")
+                func(*args, **kwargs)
+                break
+            time.sleep(2)
