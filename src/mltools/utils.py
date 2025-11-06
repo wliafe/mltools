@@ -276,14 +276,12 @@ def bash_command(command: str | list[str]):
         print(line.strip())  # 实时打印
 
 
-def get_gpu(func, *args: list[str], **kwargs: dict[str, str]):
+def get_gpu(func):
     """
-    获取空闲的 GPU 设备并执行指定函数。
+    装饰器，用于获取空闲的 GPU 设备并执行指定函数。
 
     Args:
         func (callable): 要在 GPU 上执行的函数。
-        args (list[str]): 函数的位置参数列表。
-        kwargs (dict[str, str]): 函数的关键字参数字典。
     """
     # 获取所有可用的GPU设备
     devices = Device.all()
@@ -298,6 +296,11 @@ def get_gpu(func, *args: list[str], **kwargs: dict[str, str]):
             if len(processes.items()) == 1:
                 searching_for_gpu = False
                 print("-------")
-                func(*args, **kwargs)
+
+                def wrapper(*args: list[str], **kwargs: dict[str, str]):
+                    print("执行函数")
+                    func(*args, **kwargs)
+
                 break
             time.sleep(2)
+    return wrapper
