@@ -298,8 +298,7 @@ def get_gpu(func):
                 print("-------")
 
                 def wrapper(*args: list[str], **kwargs: dict[str, str]):
-                    print("执行函数")
-                    func(*args, **kwargs)
+                    func(device.index, *args, **kwargs)
 
                 break
             time.sleep(2)
