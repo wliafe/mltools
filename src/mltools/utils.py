@@ -1,5 +1,6 @@
 import json
 import time
+import torch
 import subprocess
 from pathlib import Path
 from nvitop import Device
@@ -298,7 +299,7 @@ def get_gpu(func):
                 print("-------")
 
                 def wrapper(*args: list[str], **kwargs: dict[str, str]):
-                    func(device.index, *args, **kwargs)
+                    func(device=torch.device(f"cuda:{device.index}"), *args, **kwargs)
 
                 break
             time.sleep(2)
